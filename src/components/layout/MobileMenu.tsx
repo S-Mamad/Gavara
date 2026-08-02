@@ -4,15 +4,15 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import site from "@/data/site.json";
-import type { SiteConfig } from "@/types";
 import { cn } from "@/lib/utils";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
-
-const data = site as SiteConfig;
-const sectionIds = data.nav.map((n) => n.id);
+import { useVisibleNav } from "@/hooks/useVisibleNav";
+import { useCopy } from "@/hooks/useCopy";
 
 export function MobileMenu() {
+  const copy = useCopy();
+  const nav = useVisibleNav();
+  const sectionIds = nav.map((n) => n.id);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const activeId = useScrollSpy(sectionIds);
@@ -93,7 +93,7 @@ export function MobileMenu() {
                       منوی موبایل
                     </p>
                     <nav className="flex flex-col p-2">
-                      {data.nav.map((item) => (
+                      {nav.map((item) => (
                         <Link
                           key={item.id}
                           href={item.href}
@@ -114,7 +114,7 @@ export function MobileMenu() {
                           onClick={() => setOpen(false)}
                           className="flex h-10 items-center justify-center rounded-xl bg-accent text-[13px] font-medium text-void"
                         >
-                          شروع پروژه
+                          {copy.hero.primaryCta}
                         </Link>
                       </div>
                     </nav>

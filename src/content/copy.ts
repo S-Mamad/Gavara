@@ -58,7 +58,7 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
   dev: {
     hero: {
       title: "از ایده تا محصول زنده",
-      highlight: "با کیفیت production.",
+      highlight: "با کیفیت پروداکشن",
       description:
         "طراحی، فرانت و زیرساخت؛ خروجی واقعی که بعد از لانچ هم قابل نگهداری بماند.",
       primaryCta: "شروع پروژه",
@@ -80,9 +80,9 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
       description: "مهاجرت بدون قطعی، تایید زیرساخت، و مدیریت دیتای واقعی.",
     },
     about: {
-      eyebrow: "",
-      title: "دو نفر، یک استاندارد",
-      description: "کد قابل نگهداری و دیزاین دقیق؛ از ایده تا لانچ.",
+      eyebrow: "درباره",
+      title: "محمد محمدی",
+      description: "فرانت‌اند، محصول و لانچ؛ خروجی واقعی از ایده تا پروداکشن.",
     },
     contact: {
       eyebrow: "",
@@ -120,8 +120,8 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
       description: "بدون قطعی، با مستندسازی شفاف، و آماده برای مقیاس.",
     },
     about: {
-      eyebrow: "",
-      title: "تیم اجرایی کوچک",
+      eyebrow: "درباره",
+      title: "محمد محمدی",
       description: "مسئولیت کامل از ایده تا لانچ، بدون لایه‌های اضافه.",
     },
     contact: {

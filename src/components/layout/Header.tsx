@@ -4,19 +4,21 @@ import Link from "next/link";
 import { ArrowLeft, GithubLogo, TelegramLogo } from "@phosphor-icons/react";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { useState } from "react";
-import site from "@/data/site.json";
-import type { SiteConfig } from "@/types";
 import { cn } from "@/lib/utils";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { BrandLink } from "@/components/ui/BrandLogo";
 import { MobileMenu } from "./MobileMenu";
-
-const data = site as SiteConfig;
-const sectionIds = data.nav.map((n) => n.id);
-const telegram = data.links.find((l) => l.id === "telegram");
-const github = data.links.find((l) => l.id === "github");
+import { useSite } from "@/context/CmsContext";
+import { useVisibleNav } from "@/hooks/useVisibleNav";
+import { useCopy } from "@/hooks/useCopy";
 
 export function Header() {
+  const data = useSite();
+  const copy = useCopy();
+  const nav = useVisibleNav();
+  const sectionIds = nav.map((n) => n.id);
+  const telegram = data.links.find((l) => l.id === "telegram");
+  const github = data.links.find((l) => l.id === "github");
   const [scrolled, setScrolled] = useState(false);
   const activeId = useScrollSpy(sectionIds);
   const { scrollY } = useScroll();
@@ -39,7 +41,7 @@ export function Header() {
         <BrandLink className="shrink-0" />
 
         <ul className="mx-auto hidden items-center lg:flex">
-          {data.nav.map((item) => (
+          {nav.map((item) => (
             <li key={item.id}>
               <Link
                 href={item.href}
@@ -83,7 +85,7 @@ export function Header() {
             href="/#contact"
             className="group hidden items-center gap-2 rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-void transition-colors hover:bg-accent-bright md:inline-flex"
           >
-            شروع پروژه
+            {copy.hero.primaryCta}
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-void/10 transition-transform duration-300 group-hover:-translate-x-0.5">
               <ArrowLeft className="h-3.5 w-3.5" weight="bold" />
             </span>

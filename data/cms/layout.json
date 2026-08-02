@@ -1,0 +1,29 @@
+{
+  "sections": [
+    {
+      "id": "hero",
+      "label": "هیرو",
+      "enabled": true
+    },
+    {
+      "id": "work",
+      "label": "نمونه‌کارها",
+      "enabled": true
+    },
+    {
+      "id": "expertise",
+      "label": "خدمات",
+      "enabled": true
+    },
+    {
+      "id": "about",
+      "label": "درباره",
+      "enabled": true
+    },
+    {
+      "id": "contact",
+      "label": "تماس",
+      "enabled": true
+    }
+  ]
+}

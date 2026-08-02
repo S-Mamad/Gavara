@@ -41,7 +41,7 @@ const projectTypes = [
 
 function buildMailtoUrl(form: FormData) {
   const email = data.links.find((l) => l.id === "email");
-  const to = email?.label ?? "hello@raxinshop.ir";
+  const to = email?.label ?? "Mohammadi@gmail.com";
   const subject = encodeURIComponent(`[راکسین‌شاپ] ${form.projectType}`);
   const body = encodeURIComponent(
     `نام: ${form.name}\nتماس: ${form.contact}\nنوع پروژه: ${form.projectType}\n\n${form.message}`,
@@ -101,7 +101,7 @@ export function ContactForm() {
     openMailto(form);
     setStatus("mailto");
     setStatusMessage(
-      "ایمیل شما باز شد. اگر باز نشد، به hello@raxinshop.ir پیام بدهید.",
+      "ایمیل شما باز شد. اگر باز نشد، به Mohammadi@gmail.com پیام بدهید.",
     );
     reset();
   }

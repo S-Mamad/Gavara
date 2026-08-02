@@ -1,115 +1,76 @@
-import Image from "next/image";
-import site from "@/data/site.json";
-import type { ServiceItem, SiteConfig } from "@/types";
+"use client";
+
+import type { ServiceItem } from "@/types";
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/ui/Reveal";
 import { ServiceIcon } from "@/components/ui/ServiceIcon";
+import { useCopy } from "@/hooks/useCopy";
+import { useSite } from "@/context/CmsContext";
 
-const data = site as SiteConfig;
-
-function ServiceCell({
+function ServiceRow({
   service,
-  className,
+  index,
 }: {
   service: ServiceItem;
-  className?: string;
+  index: number;
 }) {
-  const hasVisual = Boolean(service.visual);
-  const hasGradient = Boolean(service.gradient);
-
   return (
-    <article
-      className={cn(
-        "group relative flex h-full min-h-[280px] flex-col overflow-hidden bg-surface/40 p-8 md:p-10",
-        !hasVisual && !hasGradient && "border border-border",
-        className,
-      )}
-    >
-      {hasVisual ? (
-        <>
-          <Image
-            src={service.visual!}
-            alt=""
-            fill
-            className="object-cover opacity-30 transition-opacity duration-500 group-hover:opacity-40"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-void via-void/80 to-void/40" />
-        </>
-      ) : hasGradient ? (
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            background: `linear-gradient(135deg, ${service.gradient![0]}, ${service.gradient![1]})`,
-          }}
-        />
-      ) : null}
-
-      <div className="relative z-10 flex flex-1 flex-col">
-        <span className="mb-6 flex h-11 w-11 items-center justify-center border border-border-bright bg-elevated/80 text-accent backdrop-blur-sm">
+    <Reveal delay={index * 0.05}>
+      <article
+        className={cn(
+          "group flex gap-4 border-b border-border/80 py-6 transition-colors duration-300 last:border-b-0 sm:gap-5 sm:py-7 md:gap-6 md:py-8",
+          index === 0 && "pt-0",
+        )}
+      >
+        <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-accent transition-colors duration-300 group-hover:border-accent/35 group-hover:bg-accent/10 sm:h-11 sm:w-11">
           <ServiceIcon name={service.icon} />
         </span>
-        <h3 className="font-display text-xl text-foreground md:text-2xl">
-          {service.title}
-        </h3>
-        <p className="mt-4 flex-1 text-sm leading-[1.9] text-muted md:text-[15px]">
-          {service.description}
-        </p>
-        <div className="mt-6 flex flex-wrap items-center gap-2">
-          {service.proof ? (
-            <span className="label-mono text-accent/80">نمونه · {service.proof}</span>
-          ) : null}
-          {service.tags?.slice(0, 2).map((tag) => (
-            <span
-              key={tag}
-              dir="ltr"
-              className="border border-border px-2 py-0.5 font-mono text-[10px] text-dim"
-            >
-              {tag}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h3 className="font-display text-lg text-foreground sm:text-xl md:text-[1.35rem]">
+              {service.title}
+            </h3>
+            <span className="font-mono text-[10px] text-dim" dir="ltr">
+              0{index + 1}
             </span>
-          ))}
+          </div>
+          <p className="mt-2 max-w-2xl text-[13.5px] leading-[1.85] text-muted sm:text-sm md:text-[15px]">
+            {service.description}
+          </p>
         </div>
-      </div>
-    </article>
+      </article>
+    </Reveal>
   );
 }
 
 export function Expertise() {
-  const [frontend, product, backend, brand] = data.services;
+  const copy = useCopy();
+  const data = useSite();
 
   return (
-    <section id="expertise" className="py-32 md:py-40">
-      <div className="mx-auto max-w-7xl px-5 md:px-10">
-        <Reveal className="mb-16 max-w-2xl">
-          <h2 className="font-display text-[2rem] text-foreground md:text-[2.75rem]">
-            حوزه‌های کاری
+    <section
+      id="expertise"
+      className="relative overflow-hidden border-b border-border py-20 sm:py-28 md:py-36"
+    >
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:gap-12 sm:px-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-16 md:px-10">
+        <Reveal className="md:sticky md:top-28 md:self-start">
+          {copy.bento.eyebrow ? (
+            <p className="mb-3 text-[12px] tracking-wide text-dim sm:text-[13px]">
+              {copy.bento.eyebrow}
+            </p>
+          ) : null}
+          <h2 className="font-display text-[clamp(1.65rem,5vw,2.75rem)] leading-[1.15] text-foreground text-balance">
+            {copy.bento.title}
           </h2>
-          <p className="mt-5 max-w-xl text-[15px] leading-[1.85] text-muted md:text-base">
-            چهار محور اصلی. هر کدام با استاندارد تولید و نمونه واقعی.
+          <p className="mt-4 max-w-md text-[14px] leading-[1.85] text-muted sm:mt-5 sm:text-[15px] md:text-base">
+            {copy.bento.description}
           </p>
         </Reveal>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {frontend ? (
-            <Reveal className="md:col-span-2">
-              <ServiceCell service={frontend} className="md:min-h-[320px]" />
-            </Reveal>
-          ) : null}
-          {product ? (
-            <Reveal delay={0.04}>
-              <ServiceCell service={product} />
-            </Reveal>
-          ) : null}
-          {backend ? (
-            <Reveal delay={0.08}>
-              <ServiceCell service={backend} />
-            </Reveal>
-          ) : null}
-          {brand ? (
-            <Reveal delay={0.12} className="md:col-span-2 md:max-w-[calc(50%-0.5rem)]">
-              <ServiceCell service={brand} />
-            </Reveal>
-          ) : null}
+        <div>
+          {data.services.map((service, index) => (
+            <ServiceRow key={service.id} service={service} index={index} />
+          ))}
         </div>
       </div>
     </section>

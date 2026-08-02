@@ -50,6 +50,12 @@ Asal/data/*
 # Local runtime data (orders, reviews submissions)
 data/*
 !data/.gitkeep
+!data/cms/
+data/cms/leads.json
+
+# Admin uploads
+public/uploads/*
+!public/uploads/.gitkeep
 
 # typescript
 *.tsbuildinfo

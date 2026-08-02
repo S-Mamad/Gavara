@@ -19,7 +19,7 @@ const studio: Product = {
 
 await ship(studio, {
   zeroDowntime: true,
-  region: 'tehran',
+  region: 'yazd',
 })`;
 
 function tokenize(line: string) {
@@ -38,6 +38,13 @@ function tokenize(line: string) {
   }
   return parts.length ? parts : [{ text: "\u00A0" }];
 }
+
+const toneClass = {
+  kw: "text-accent-bright",
+  str: "text-[#c4a574]",
+  type: "text-[#7dd3c0]",
+  dim: "text-dim",
+} as const;
 
 export function HeroCodeStage() {
   const reduceMotion = useReducedMotion();
@@ -75,27 +82,27 @@ export function HeroCodeStage() {
       transition={{ duration: 0.55, delay: 0.1, ease: [0.32, 0.72, 0, 1] }}
       className="relative mx-auto w-full max-w-lg md:max-w-none"
     >
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0b0b0f]/92 shadow-[0_28px_70px_-42px_rgba(0,0,0,0.9)] backdrop-blur-sm md:rounded-2xl">
+      <div className="code-panel overflow-hidden rounded-xl border border-white/10 bg-[#0b0b0f]/92 shadow-[0_28px_70px_-42px_rgba(0,0,0,0.9)] backdrop-blur-sm md:rounded-2xl">
         <div className="flex items-center gap-2 border-b border-white/8 px-3 py-2.5 md:px-4">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]/75" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]/75" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]/75" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]/75" aria-hidden />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]/75" aria-hidden />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]/75" aria-hidden />
           <div className="ms-2 flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
             <span
-              className="truncate rounded-md bg-white/[0.06] px-2 py-0.5 font-mono text-[10px] text-foreground/80 md:text-[11px]"
+              className="truncate rounded-md bg-white/[0.06] px-2 py-0.5 text-[10px] text-foreground/80 md:text-[11px]"
               dir="ltr"
             >
               ship.ts
             </span>
             <span
-              className="hidden truncate rounded-md px-2 py-0.5 font-mono text-[10px] text-dim sm:inline"
+              className="hidden truncate rounded-md px-2 py-0.5 text-[10px] text-dim sm:inline"
               dir="ltr"
             >
-              product.ts
+              TypeScript
             </span>
           </div>
           <span
-            className="shrink-0 font-mono text-[10px] text-accent/80"
+            className="shrink-0 text-[10px] text-accent/80"
             dir="ltr"
           >
             {done ? "ready" : "typing"}
@@ -109,7 +116,7 @@ export function HeroCodeStage() {
           />
           <pre
             dir="ltr"
-            className="relative max-h-[260px] overflow-auto p-3.5 font-mono text-[11.5px] leading-[1.8] sm:max-h-none sm:p-5 sm:text-[12.5px] sm:leading-[1.85] md:min-h-[300px] md:p-6 md:text-[13px]"
+            className="relative max-h-[260px] overflow-auto p-3.5 text-[11.5px] leading-[1.8] sm:max-h-none sm:p-5 sm:text-[12.5px] sm:leading-[1.85] md:min-h-[300px] md:p-6 md:text-[13px]"
             aria-hidden
           >
             <code className="block min-w-max">
@@ -127,15 +134,9 @@ export function HeroCodeStage() {
                     <span
                       key={`${index}-${partIndex}`}
                       className={
-                        part.tone === "kw"
-                          ? "text-accent-bright"
-                          : part.tone === "str"
-                            ? "text-[#c4a574]"
-                            : part.tone === "type"
-                              ? "text-[#7dd3c0]"
-                              : part.tone === "dim"
-                                ? "text-dim"
-                                : "text-foreground/88"
+                        part.tone
+                          ? toneClass[part.tone]
+                          : "text-foreground/88"
                       }
                     >
                       {part.text}
@@ -151,7 +152,7 @@ export function HeroCodeStage() {
         </div>
 
         <div
-          className="flex items-center gap-3 border-t border-white/8 bg-black/25 px-3 py-2 font-mono text-[9px] text-dim sm:px-4 sm:py-2.5 sm:text-[10px]"
+          className="flex items-center gap-3 border-t border-white/8 bg-black/25 px-3 py-2 text-[9px] text-dim sm:px-4 sm:py-2.5 sm:text-[10px]"
           dir="ltr"
         >
           <span className="text-accent">›</span>

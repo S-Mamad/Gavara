@@ -13,15 +13,16 @@ const siteName = `${data.brand.name}${data.brand.suffix}`;
 const vazirmatn = Vazirmatn({
   variable: "--font-vazirmatn",
   subsets: ["arabic", "latin"],
-  weight: ["400", "600", "800"],
+  weight: ["400", "600", "700", "800"],
   display: "swap",
 });
 
 const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {

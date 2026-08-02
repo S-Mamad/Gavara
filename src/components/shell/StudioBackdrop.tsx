@@ -29,7 +29,9 @@ export function StudioBackdrop() {
   const { heavyEffectsOff } = useContextAware();
 
   const onStudioRoute =
-    !pathname?.startsWith("/hajiasal") && !pathname?.startsWith("/api");
+    !pathname?.startsWith("/hajiasal") &&
+    !pathname?.startsWith("/api") &&
+    !pathname?.startsWith("/admin");
   const quiet =
     !onStudioRoute ||
     reduceMotion === true ||

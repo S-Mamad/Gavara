@@ -1,7 +1,7 @@
 "use client";
 
-import { copyByMode } from "@/content/copy";
+import { useCms } from "@/context/CmsContext";
 
 export function useCopy() {
-  return copyByMode.dev;
+  return useCms().copy;
 }

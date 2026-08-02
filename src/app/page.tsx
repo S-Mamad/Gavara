@@ -2,17 +2,23 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollProgress } from "@/components/shell/ScrollProgress";
 import { HomeSections } from "@/components/shell/HomeSections";
-import site from "@/data/site.json";
-import type { SiteConfig } from "@/types";
+import { CmsProvider } from "@/context/CmsContext";
+import { ensureCmsSeeded, getAllCms } from "@/lib/cms/store";
+import { mergeLandingCopy } from "@/lib/cms/merge";
 import {
   buildOrganizationJsonLd,
   buildPersonJsonLd,
   buildWebSiteJsonLd,
 } from "@/lib/seo";
 
-const data = site as SiteConfig;
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+  await ensureCmsSeeded();
+  const cms = await getAllCms();
+  const copy = mergeLandingCopy(cms.copy);
+  const data = cms.site;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -23,7 +29,14 @@ export default function Home() {
   };
 
   return (
-    <>
+    <CmsProvider
+      value={{
+        site: cms.site,
+        projects: cms.projects,
+        copy,
+        layout: cms.layout,
+      }}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -39,6 +52,6 @@ export default function Home() {
         <HomeSections />
       </main>
       <Footer />
-    </>
+    </CmsProvider>
   );
 }

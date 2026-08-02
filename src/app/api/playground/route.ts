@@ -15,7 +15,6 @@ const PAYLOADS: Record<string, unknown> = {
     data: [
       { id: "marham", value: "health SaaS · infra" },
       { id: "hajiasal", value: "luxury commerce" },
-      { id: "hamgam", value: "brand system" },
     ],
   },
   resume: {
@@ -23,7 +22,7 @@ const PAYLOADS: Record<string, unknown> = {
     data: {
       studio: "Raxinshop",
       city: "Tehran",
-      contact: "hello@raxinshop.ir",
+      contact: "Mohammadi@gmail.com",
       highlights: [
         "Production frontends at scale",
         "Infra migrations without downtime",

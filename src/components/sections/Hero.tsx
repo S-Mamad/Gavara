@@ -7,11 +7,15 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import Link from "next/link";
 import { useCopy } from "@/hooks/useCopy";
 import { usePrefs } from "@/context/PrefsContext";
-import { TypewriterLine } from "@/components/ui/TypewriterLine";
+import { useSite } from "@/context/CmsContext";
+import {
+  TypewriterLine,
+  phrasesFromDescription,
+} from "@/components/ui/TypewriterLine";
 import { HeroCodeStage } from "@/components/sections/HeroCodeStage";
 
 const ease = [0.32, 0.72, 0, 1] as const;
@@ -21,6 +25,7 @@ const ctaBase =
 
 export function Hero() {
   const copy = useCopy();
+  const site = useSite();
   const { forceReducedMotion } = usePrefs();
   const reduceMotion = useReducedMotion() || forceReducedMotion;
   const sectionRef = useRef<HTMLElement>(null);
@@ -29,6 +34,11 @@ export function Hero() {
     offset: ["start start", "end start"],
   });
   const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0.55]);
+  const brand = `${site.brand.name}${site.brand.suffix}`;
+  const phrases = useMemo(
+    () => phrasesFromDescription(copy.hero.description),
+    [copy.hero.description],
+  );
 
   return (
     <section
@@ -47,14 +57,23 @@ export function Hero() {
           className="mx-auto w-full max-w-xl text-center md:mx-0 md:text-start"
         >
           <h1 className="font-display text-[clamp(2.15rem,9vw,4.75rem)] leading-[1.08] tracking-tight text-foreground">
-            راکسین‌شاپ
+            {brand}
           </h1>
+
+          {site.brand.tagline ? (
+            <p className="mt-2 text-[12px] text-dim sm:text-[13px]">
+              {site.brand.tagline}
+            </p>
+          ) : null}
 
           <p className="mt-4 font-display text-[clamp(1.05rem,3.8vw,1.65rem)] leading-[1.3] text-accent-bright sm:mt-5">
             {copy.hero.title} {copy.hero.highlight}
           </p>
 
-          <TypewriterLine className="mx-auto mt-4 max-w-[28ch] sm:mt-5 sm:max-w-[34ch] md:mx-0" />
+          <TypewriterLine
+            phrases={phrases}
+            className="mx-auto mt-4 max-w-[28ch] sm:mt-5 sm:max-w-[34ch] md:mx-0"
+          />
 
           <div className="mt-8 flex flex-col gap-2.5 sm:mt-9 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3 md:justify-start">
             <Link
@@ -67,7 +86,7 @@ export function Hero() {
               </span>
             </Link>
             <Link
-              href="/work"
+              href="/#work"
               className={`${ctaBase} border border-border-bright text-foreground hover:border-accent/40 hover:text-accent`}
             >
               {copy.hero.secondaryCta}
@@ -75,7 +94,7 @@ export function Hero() {
           </div>
         </motion.div>
 
-        <div className="relative w-full">
+        <div className="relative w-full min-w-0">
           <HeroCodeStage />
         </div>
       </motion.div>

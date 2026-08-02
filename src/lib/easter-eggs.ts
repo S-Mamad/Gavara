@@ -26,7 +26,7 @@ export function installConsoleArt() {
 ██║  ██║██║  ██║██╔╝ ██╗██║██║ ╚████║
 ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 %cکدهای من رو چک می‌کنی؟ پس بیا با هم کار کنیم.
-telegram: @Mamad3 · hello@raxinshop.ir
+telegram: @Mamad3 · Mohammadi@gmail.com
 `;
   console.log(
     art,

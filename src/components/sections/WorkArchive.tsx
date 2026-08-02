@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react";
-import projects from "@/data/projects.json";
 import capabilities from "@/data/capabilities.json";
-import type { CapabilityItem, ProjectItem } from "@/types";
+import type { CapabilityItem } from "@/types";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProjectArchiveCard } from "@/components/sections/ProjectArchiveCard";
 import { CapabilityCard } from "@/components/sections/CapabilityCard";
+import { useProjects } from "@/context/CmsContext";
 
-const projectData = projects as ProjectItem[];
 const capabilityData = capabilities as CapabilityItem[];
 
 export function WorkArchive() {
+  const projectData = useProjects();
   return (
     <div className="relative overflow-hidden pb-20 pt-28 sm:pb-28 sm:pt-32 md:pb-36 md:pt-36">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 md:px-10">

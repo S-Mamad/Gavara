@@ -10,18 +10,17 @@ import {
   useTransform,
 } from "motion/react";
 import { useRef } from "react";
-import projects from "@/data/projects.json";
 import type { ProjectItem } from "@/types";
 import { useCopy } from "@/hooks/useCopy";
+import { useProjects } from "@/context/CmsContext";
 import { Reveal } from "@/components/ui/Reveal";
 import { LiveSitePreview } from "@/components/ui/LiveSitePreview";
 import { cn } from "@/lib/utils";
 
-const projectData = projects as ProjectItem[];
-const preview = projectData.slice(0, 2);
-
 export function Work() {
   const copy = useCopy();
+  const projects = useProjects();
+  const preview = projects.filter((p) => p.featured).slice(0, 3);
 
   return (
     <section
@@ -30,6 +29,11 @@ export function Work() {
     >
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 md:px-10">
         <Reveal className="mb-10 max-w-2xl sm:mb-12 md:mb-16">
+          {copy.work.eyebrow ? (
+            <p className="mb-3 text-[12px] tracking-wide text-dim sm:text-[13px]">
+              {copy.work.eyebrow}
+            </p>
+          ) : null}
           <h2 className="font-display text-[clamp(1.65rem,5vw,2.75rem)] leading-[1.15] text-foreground">
             {copy.work.title}
           </h2>

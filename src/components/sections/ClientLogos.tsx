@@ -4,61 +4,61 @@ import Image from "next/image";
 import Link from "next/link";
 import site from "@/data/site.json";
 import type { SiteConfig } from "@/types";
+import { Reveal } from "@/components/ui/Reveal";
 
 const data = site as SiteConfig;
 
 export function ClientLogos() {
   if (!data.clients?.length) return null;
 
-  const row = [...data.clients, ...data.clients, ...data.clients];
-
   return (
     <section
-      aria-label="مشتریان"
-      className="relative z-[var(--z-content)] overflow-hidden border-y border-border/80 py-12 md:py-14"
+      aria-label="مشتریان و پروژه‌ها"
+      className="relative z-[var(--z-content)] border-y border-border/70 py-10 sm:py-12 md:py-14"
     >
-      <div
-        className="pointer-events-none absolute inset-y-0 start-0 z-[1] w-24 bg-gradient-to-l from-transparent to-void md:w-40"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 end-0 z-[1] w-24 bg-gradient-to-r from-transparent to-void md:w-40"
-        aria-hidden
-      />
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 sm:gap-8 sm:px-6 md:flex-row md:justify-between md:px-10">
+        <Reveal className="text-center md:text-start">
+          <p className="text-[12px] tracking-wide text-dim sm:text-[13px]">
+            روی محصول‌های زنده کار کرده‌ایم
+          </p>
+        </Reveal>
 
-      <div className="marquee-track flex w-max items-center gap-14 md:gap-20">
-        {row.map((client, index) => {
-          const logo = client.logo ? (
-            <Image
-              src={client.logo}
-              alt=""
-              width={140}
-              height={44}
-              className="h-8 w-auto opacity-45 transition-opacity duration-300 hover:opacity-90 md:h-9"
-            />
-          ) : (
-            <span className="font-display text-sm text-muted">{client.name}</span>
-          );
+        <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 sm:gap-x-12 md:gap-x-14">
+          {data.clients.map((client, index) => {
+            const logo = client.logo ? (
+              <Image
+                src={client.logo}
+                alt=""
+                width={140}
+                height={44}
+                className="h-7 w-auto opacity-50 transition-opacity duration-300 group-hover:opacity-95 sm:h-8"
+              />
+            ) : (
+              <span className="font-display text-sm text-muted">{client.name}</span>
+            );
 
-          return (
-            <div key={`${client.name}-${index}`} className="shrink-0">
-              {client.href ? (
-                <Link
-                  href={client.href}
-                  className="block"
-                  aria-label={client.name}
-                  {...(client.href.startsWith("http")
-                    ? { target: "_blank", rel: "noopener noreferrer" }
-                    : {})}
-                >
-                  {logo}
-                </Link>
-              ) : (
-                logo
-              )}
-            </div>
-          );
-        })}
+            return (
+              <li key={client.name}>
+                <Reveal delay={index * 0.04}>
+                  {client.href ? (
+                    <Link
+                      href={client.href}
+                      className="group block"
+                      aria-label={client.name}
+                      {...(client.href.startsWith("http")
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
+                    >
+                      {logo}
+                    </Link>
+                  ) : (
+                    logo
+                  )}
+                </Reveal>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );

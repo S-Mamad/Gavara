@@ -1,28 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
-const PHRASES = [
-  "سایت، فروشگاه و محصول دیجیتال",
-  "ربات تلگرام، پنل و اتوماسیون",
-  "دیزاین، کد و لانچ در یک تیم",
-];
+export function TypewriterLine({
+  className,
+  phrases,
+}: {
+  className?: string;
+  phrases: string[];
+}) {
+  const lines = useMemo(() => {
+    const cleaned = phrases.map((p) => p.trim()).filter(Boolean);
+    return cleaned.length ? cleaned : [" "];
+  }, [phrases]);
 
-export function TypewriterLine({ className }: { className?: string }) {
+  const key = lines.join("\u0001");
   const reduceMotion = useReducedMotion();
   const [phraseIndex, setPhraseIndex] = useState(0);
-  const [text, setText] = useState(reduceMotion ? PHRASES[0] : "");
+  const [text, setText] = useState("");
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
+    setPhraseIndex(0);
+    setDeleting(false);
+    setText(reduceMotion ? lines[0]! : "");
+  }, [key, reduceMotion, lines]);
+
+  useEffect(() => {
     if (reduceMotion) {
-      setText(PHRASES[0]);
+      setText(lines[0]!);
       return;
     }
 
-    const current = PHRASES[phraseIndex];
+    if (lines.length === 1) {
+      const current = lines[0]!;
+      if (text === current) return;
+      const tick = window.setTimeout(() => {
+        setText(current.slice(0, text.length + 1));
+      }, 42);
+      return () => window.clearTimeout(tick);
+    }
+
+    const current = lines[phraseIndex % lines.length]!;
     const doneTyping = text === current && !deleting;
     const doneDeleting = deleting && text.length === 0;
 
@@ -33,7 +54,7 @@ export function TypewriterLine({ className }: { className?: string }) {
 
     if (doneDeleting) {
       setDeleting(false);
-      setPhraseIndex((i) => (i + 1) % PHRASES.length);
+      setPhraseIndex((i) => (i + 1) % lines.length);
       return;
     }
 
@@ -47,7 +68,7 @@ export function TypewriterLine({ className }: { className?: string }) {
     }, delay);
 
     return () => window.clearTimeout(tick);
-  }, [text, deleting, phraseIndex, reduceMotion]);
+  }, [text, deleting, phraseIndex, reduceMotion, lines, key]);
 
   return (
     <p
@@ -66,4 +87,12 @@ export function TypewriterLine({ className }: { className?: string }) {
       ) : null}
     </p>
   );
+}
+
+/** Split CMS description into typewriter phrases (`|` or newlines). */
+export function phrasesFromDescription(description: string): string[] {
+  return description
+    .split(/\n|\|/)
+    .map((p) => p.trim())
+    .filter(Boolean);
 }

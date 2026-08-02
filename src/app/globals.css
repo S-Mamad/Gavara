@@ -81,6 +81,10 @@ body::after {
   background-size: 180px 180px;
 }
 
+body:has(.admin-surface)::after {
+  display: none;
+}
+
 [id] {
   scroll-margin-top: 6rem;
 }
@@ -95,18 +99,35 @@ body::after {
   letter-spacing: 0.02em;
 }
 
+/* Hero / terminal code: force JetBrains Mono in RTL page */
+.code-panel,
+.code-panel pre,
+.code-panel code,
+.code-panel span {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+.code-panel pre,
+.code-panel code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  tab-size: 2;
+  -moz-tab-size: 2;
+}
+
 .font-display {
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   line-height: 1.15;
   text-wrap: balance;
-  overflow-wrap: anywhere;
 }
 
 @media (min-width: 640px) {
   .font-display {
     line-height: 1.1;
-    overflow-wrap: normal;
   }
 }
 

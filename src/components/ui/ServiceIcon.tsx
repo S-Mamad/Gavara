@@ -10,6 +10,7 @@ import {
   PaintBrush,
   Plugs,
 } from "@phosphor-icons/react";
+import { cn } from "@/lib/utils";
 
 const iconMap = {
   Monitor,
@@ -24,7 +25,18 @@ const iconMap = {
   design: PaintBrush,
 } as const;
 
-export function ServiceIcon({ name }: { name: string }) {
+export function ServiceIcon({
+  name,
+  className,
+}: {
+  name: string;
+  className?: string;
+}) {
   const Icon = iconMap[name as keyof typeof iconMap] ?? Stack;
-  return <Icon className="h-5 w-5 text-accent/70" weight="duotone" />;
+  return (
+    <Icon
+      className={cn("h-5 w-5 text-current", className)}
+      weight="duotone"
+    />
+  );
 }

@@ -20,9 +20,9 @@ export function TeamImage({ member }: { member: TeamMember }) {
       src={member.image}
       alt={member.name}
       fill
-      className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.04]"
-      style={{ objectPosition: member.imagePosition ?? "center center" }}
-      sizes="(max-width: 640px) 100vw, 420px"
+      className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.03]"
+      style={{ objectPosition: member.imagePosition ?? "50% 18%" }}
+      sizes="(max-width: 768px) 90vw, 440px"
       priority={member.featured}
     />
   );

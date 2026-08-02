@@ -5,18 +5,12 @@ import { ArrowLeft, GithubLogo, TelegramLogo } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import site from "@/data/site.json";
-import type { SiteConfig } from "@/types";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Reveal } from "@/components/ui/Reveal";
 import { useCopy } from "@/hooks/useCopy";
-
-const data = site as SiteConfig;
-const telegram = data.links.find((l) => l.id === "telegram");
-const github = data.links.find((l) => l.id === "github");
-const email = data.links.find((l) => l.id === "email");
+import { useSite } from "@/context/CmsContext";
 
 const schema = z.object({
   name: z.string().min(2, "نام الزامی است"),
@@ -34,27 +28,14 @@ const chips = [
   { value: "shop", label: "فروشگاه" },
 ];
 
-function openMailto(form: FormData, projectType: string) {
-  const to = email?.label ?? "hello@raxinshop.ir";
-  const subject = encodeURIComponent(
-    `[راکسین‌شاپ] ${projectType || "گفتگو"}`,
-  );
-  const body = encodeURIComponent(
-    `نام: ${form.name}\nتماس: ${form.contact}\nنوع: ${projectType || "-"}\n\n${form.message}`,
-  );
-  const url = `mailto:${to}?subject=${subject}&body=${body}`;
-  const link = document.createElement("a");
-  link.href = url;
-  link.style.display = "none";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
 export function Contact() {
   const copy = useCopy();
+  const data = useSite();
+  const telegram = data.links.find((l) => l.id === "telegram");
+  const github = data.links.find((l) => l.id === "github");
+  const email = data.links.find((l) => l.id === "email");
   const [projectType, setProjectType] = useState("mvp");
-  const [status, setStatus] = useState<"idle" | "ok">("idle");
+  const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
 
   const {
     register,
@@ -68,30 +49,39 @@ export function Contact() {
 
   async function onSubmit(form: FormData) {
     if (form.website) return;
+    setStatus("idle");
 
     try {
-      await fetch("/api/lead", {
+      const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
           contact: form.contact,
-          message: `${projectType}\n\n${form.message}`,
+          message: form.message,
+          projectType,
         }),
       });
+      if (!res.ok) {
+        setStatus("error");
+        return;
+      }
+      setStatus("ok");
+      reset();
     } catch {
-      /* best-effort */
+      setStatus("error");
     }
-
-    openMailto(form, projectType);
-    setStatus("ok");
-    reset();
   }
 
   return (
     <section id="contact" className="relative overflow-hidden py-20 sm:py-28 md:py-36">
       <div className="relative mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
         <Reveal className="text-center">
+          {copy.contact.eyebrow ? (
+            <p className="mb-3 text-[12px] tracking-wide text-dim sm:text-[13px]">
+              {copy.contact.eyebrow}
+            </p>
+          ) : null}
           <h2 className="font-display text-[clamp(1.65rem,5vw,2.75rem)] leading-[1.15] text-foreground">
             {copy.contact.title}
           </h2>
@@ -100,12 +90,34 @@ export function Contact() {
           </p>
         </Reveal>
 
+        {telegram ? (
+          <Reveal delay={0.04} className="mt-7 flex justify-center sm:mt-8">
+            <a
+              href={telegram.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex h-12 items-center gap-2.5 rounded-full border border-accent/35 bg-accent px-6 text-sm font-medium text-void transition-colors hover:bg-accent-bright active:scale-[0.98]"
+            >
+              <TelegramLogo className="h-5 w-5" weight="fill" />
+              گفتگو در تلگرام
+              <ArrowLeft
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-0.5"
+                weight="bold"
+              />
+            </a>
+          </Reveal>
+        ) : null}
+
         <Reveal delay={0.06} className="mt-8 sm:mt-10 md:mt-12">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-1 shadow-[0_40px_100px_-60px_rgba(0,0,0,0.8)] sm:rounded-[1.75rem] sm:p-1.5">
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="rounded-[calc(1rem-2px)] border border-white/6 bg-void/70 p-4 sm:rounded-[calc(1.75rem-0.375rem)] sm:p-5 md:p-8"
             >
+              <p className="mb-4 text-center text-[12px] text-dim sm:mb-5 sm:text-[13px]">
+                یا فرم کوتاه را پر کن؛ پیام مستقیم به پنل ادمین می‌رود
+              </p>
+
               <input
                 type="text"
                 tabIndex={-1}
@@ -163,17 +175,41 @@ export function Contact() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="group mt-6 inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-accent px-6 py-3.5 text-sm font-medium text-void transition-colors hover:bg-accent-bright disabled:opacity-60"
+                className="group mt-6 inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-border-bright bg-transparent px-6 py-3.5 text-sm font-medium text-foreground transition-colors hover:border-accent/40 hover:text-accent disabled:opacity-60"
               >
-                {isSubmitting ? "در حال ارسال..." : "ارسال"}
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-void/10 transition-transform duration-300 group-hover:-translate-x-0.5">
+                {isSubmitting ? "در حال ارسال..." : "ارسال پیام"}
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 transition-transform duration-300 group-hover:-translate-x-0.5">
                   <ArrowLeft className="h-3.5 w-3.5" weight="bold" />
                 </span>
               </button>
 
               {status === "ok" ? (
-                <p className="mt-4 text-center text-sm text-muted" role="status">
-                  ایمیل باز شد. اگر نه، مستقیم پیام بده.
+                <div
+                  className="mt-5 rounded-xl border border-accent/25 bg-accent/10 px-4 py-3 text-center"
+                  role="status"
+                >
+                  <p className="text-sm text-foreground">پیام ثبت شد.</p>
+                  <p className="mt-1 text-[13px] text-muted">
+                    معمولاً همان روز جواب می‌دهیم.
+                  </p>
+                  {telegram ? (
+                    <a
+                      href={telegram.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent-bright hover:underline"
+                    >
+                      <TelegramLogo className="h-4 w-4" weight="fill" />
+                      گفتگوی سریع در تلگرام
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {status === "error" ? (
+                <p className="mt-4 text-center text-sm text-signal" role="alert">
+                  ارسال نشد. از تلگرام پیام بده
+                  {email ? ` یا به ${email.label}` : ""}.
                 </p>
               ) : null}
             </form>
@@ -191,17 +227,6 @@ export function Contact() {
             >
               <GithubLogo className="h-4 w-4" weight="fill" />
               {github.label}
-            </a>
-          ) : null}
-          {telegram ? (
-            <a
-              href={telegram.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-muted transition-colors hover:text-accent"
-            >
-              <TelegramLogo className="h-4 w-4" weight="fill" />
-              {telegram.label}
             </a>
           ) : null}
           {email ? (

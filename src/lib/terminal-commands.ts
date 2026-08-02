@@ -13,7 +13,6 @@ const SKILLS = [
 const PROJECTS = [
   "marham/     health SaaS @ Paziresh24",
   "hajiasal/   luxury honey commerce",
-  "hamgam/     brand system (soon)",
 ];
 
 export function runTerminalCommand(input: string): TerminalResult {
@@ -66,7 +65,7 @@ export function runTerminalCommand(input: string): TerminalResult {
       lines: [
         "telegram  @Mamad3",
         "channel   @RaxinShop",
-        "email     hello@raxinshop.ir",
+        "email     Mohammadi@gmail.com",
       ],
     };
   }
