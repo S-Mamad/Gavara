@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="750" viewBox="0 0 600 750" fill="none">
+  <defs>
+    <linearGradient id="bg-m" x1="80" y1="0" x2="520" y2="750" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0c1222"/>
+      <stop offset="0.5" stop-color="#111827"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="glow-m" x1="300" y1="200" x2="300" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2dd4bf" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="face-m" x1="300" y1="180" x2="300" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#cbd5e1"/>
+      <stop offset="1" stop-color="#94a3b8"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="750" fill="url(#bg-m)"/>
+  <ellipse cx="300" cy="380" rx="200" ry="220" fill="url(#glow-m)"/>
+  <ellipse cx="300" cy="280" rx="72" ry="82" fill="url(#face-m)"/>
+  <path d="M228 250 C248 195 352 195 372 250 C365 310 340 335 300 340 C260 335 235 310 228 250Z" fill="#1e293b"/>
+  <ellipse cx="275" cy="275" rx="7" ry="8" fill="#334155"/>
+  <ellipse cx="325" cy="275" rx="7" ry="8" fill="#334155"/>
+  <path d="M288 305 Q300 312 312 305" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M195 520 Q300 460 405 520 L420 750 L180 750 Z" fill="#1e293b"/>
+  <text x="300" y="680" text-anchor="middle" fill="#64748b" font-family="system-ui,sans-serif" font-size="13" letter-spacing="2">MOHAMMAD</text>
+</svg>

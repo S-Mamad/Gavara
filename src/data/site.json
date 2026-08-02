@@ -1,0 +1,96 @@
+{
+  "brand": {
+    "name": "راکسین",
+    "suffix": "‌شاپ",
+    "slug": "raxinshop",
+    "version": "",
+    "tagline": "استودیو توسعه · تهران",
+    "description": "دو نفر، یک تیم. طراحی، کد و لانچ محصولی که فردا هم قابل نگهداری بماند.",
+    "heroTitle": "محصول دیجیتال",
+    "heroHighlight": "با استاندارد production."
+  },
+  "heroCta": {
+    "primary": "شروع پروژه",
+    "secondary": "نمونه‌کارها"
+  },
+  "clients": [
+    { "name": "مرهم", "href": "https://marham.paziresh24.com", "logo": "/clients/marham.svg" },
+    { "name": "پذیرش ۲۴", "href": "https://paziresh24.com", "logo": "/clients/paziresh24.svg" },
+    { "name": "حاجی عسل", "href": "/hajiasal", "logo": "/clients/hajiasal.svg" }
+  ],
+  "nav": [
+    { "id": "home", "label": "خانه", "href": "/" },
+    { "id": "work", "label": "کارها", "href": "/#work" },
+    { "id": "about", "label": "تیم", "href": "/#about" },
+    { "id": "contact", "label": "ارتباط", "href": "/#contact" }
+  ],
+  "footerNav": [],
+  "stack": [
+    "TypeScript",
+    "React",
+    "Next.js",
+    "Node.js",
+    "PostgreSQL",
+    "Tailwind",
+    "Vercel"
+  ],
+  "services": [
+    {
+      "id": "architecture",
+      "title": "معماری سیستم",
+      "description": "لایه‌ها، مرز ماژول و جریان داده طوری چیده می‌شود که بعداً نشکنید.",
+      "icon": "architecture"
+    },
+    {
+      "id": "infra",
+      "title": "زیرساخت و مهاجرت",
+      "description": "دپلوی، جابه‌جایی سرور و مانیتورینگ بدون قطعی برای کاربر.",
+      "icon": "server"
+    },
+    {
+      "id": "frontend",
+      "title": "فرانت‌اند محصول",
+      "description": "UI سریع، خوانا و موبایل‌محور؛ حس لوکس بدون سنگینی.",
+      "icon": "design"
+    },
+    {
+      "id": "repo",
+      "title": "تحویل و ریپو",
+      "description": "ساختار GitHub، CI و کد تمیز که تیمتان بتواند ادامه دهد.",
+      "icon": "git"
+    }
+  ],
+  "team": [
+    {
+      "id": "mohammad",
+      "name": "محمد محمدی",
+      "role": "هم‌بنیان‌گذار · فرانت‌اند و محصول",
+      "bio": "مهندس محصول در پذیرش ۲۴. سازنده مرهم و چند پلتفرم live در مقیاس واقعی.",
+      "image": "/team/mohammad.svg",
+      "imagePosition": "center center",
+      "initials": "م‌م",
+      "featured": true,
+      "links": {
+        "telegram": "https://t.me/Mamad3",
+        "github": "https://github.com/S-Mamad"
+      }
+    },
+    {
+      "id": "amir",
+      "name": "امیر حاجی عابدی",
+      "role": "هم‌بنیان‌گذار · برند و دیزاین",
+      "bio": "هویت بصری و خروجی دیجیتال. از لوگو و UI تا پکیج کامل برای مشتری.",
+      "image": "/team/amir.svg",
+      "initials": "ا‌ح",
+      "links": {
+        "telegram": "https://t.me/RaxinShop"
+      }
+    }
+  ],
+  "links": [
+    { "id": "telegram", "label": "@Mamad3", "href": "https://t.me/Mamad3" },
+    { "id": "github", "label": "S-Mamad", "href": "https://github.com/S-Mamad" },
+    { "id": "channel", "label": "@RaxinShop", "href": "https://t.me/RaxinShop" },
+    { "id": "email", "label": "hello@raxinshop.ir", "href": "mailto:hello@raxinshop.ir" }
+  ]
+}

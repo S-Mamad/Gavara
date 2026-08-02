@@ -1,0 +1,50 @@
+[
+  {
+    "id": "marham",
+    "title": "مرهم",
+    "description": "پلتفرم سلامت دیجیتال در پذیرش ۲۴. فرانت type-safe، کارایی و UX برای محیط production.",
+    "tag": "SaaS · Infra",
+    "href": "https://marham.paziresh24.com",
+    "gradient": ["#0a1628", "#0f3460"],
+    "category": "saas",
+    "tech": ["React", "TypeScript", "Infra"],
+    "previewUrl": "https://marham.paziresh24.com",
+    "featured": true,
+    "year": "۱۴۰۳",
+    "caseStyle": "infra",
+    "businessValue": ["پایداری عملیاتی", "مهاجرت بدون قطعی", "امنیت داده سلامت"],
+    "metrics": ["Zero-downtime IP shift", "Production at scale"]
+  },
+  {
+    "id": "hajiagh-honey",
+    "title": "حاجی عسل",
+    "description": "فروشگاه آنلاین عسل با دیتای واقعی، تصاویر باکیفیت و اسکرول روان در مقیاس کاتالوگ.",
+    "tag": "E-commerce · Luxury",
+    "href": "/hajiasal",
+    "gradient": ["#1a0f05", "#b45309"],
+    "category": "web",
+    "tech": ["Next.js", "Supabase", "Motion"],
+    "previewUrl": "/hajiasal",
+    "featured": true,
+    "year": "۱۴۰۴",
+    "caseStyle": "luxury",
+    "businessValue": ["تجربهٔ خرید لوکس", "پرفورمنس کاتالوگ", "آمادهٔ فروش واقعی"],
+    "metrics": ["60fps scroll target", "Real product data"]
+  },
+  {
+    "id": "hamgam",
+    "title": "همگام",
+    "description": "هویت بصری و پکیج دیجیتال کامل؛ لوگو، بنر و خروجی آماده تحویل برای لانچ برند.",
+    "tag": "برند",
+    "href": "#",
+    "gradient": ["#0e0e14", "#134e4a"],
+    "category": "web",
+    "tech": ["Branding", "UI"],
+    "image": "/portfolio/hamgam.svg",
+    "featured": false,
+    "year": "۱۴۰۴",
+    "comingSoon": true,
+    "caseStyle": "default",
+    "businessValue": ["هویت یکپارچه", "تحویل سریع"]
+  }
+]
