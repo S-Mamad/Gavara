@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE, verifySessionToken } from "@/lib/admin/auth";
-import { getLeads, ensureCmsSeeded } from "@/lib/cms/store";
+import { countNewLeads, ensureCmsSeeded } from "@/lib/cms/store";
 
 export async function GET() {
   const jar = await cookies();
@@ -11,9 +11,8 @@ export async function GET() {
     return NextResponse.json({ authenticated: false, newLeads: 0 });
   }
   await ensureCmsSeeded();
-  const leads = await getLeads();
   return NextResponse.json({
     authenticated: true,
-    newLeads: leads.filter((l) => l.status === "new").length,
+    newLeads: await countNewLeads(),
   });
 }

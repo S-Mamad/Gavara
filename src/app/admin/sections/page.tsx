@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LayoutConfig, LayoutSection } from "@/lib/cms/types";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -9,17 +9,27 @@ import {
   AdminCheckbox,
   AdminErrorState,
   AdminPageHeader,
+  AdminStickySave,
 } from "@/components/admin/ui";
 import { adminFetch, adminFetchJson, errorMessage } from "@/lib/admin/fetchJson";
+import { useBeforeUnloadGuard } from "@/hooks/useDirtyGuard";
 
 type LayoutPayload = { data: LayoutConfig };
 
 export default function AdminSectionsPage() {
   const { pushToast } = useToast();
   const [layout, setLayout] = useState<LayoutConfig | null>(null);
+  const [baseline, setBaseline] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const dirty = useMemo(() => {
+    if (!layout || !baseline) return false;
+    return JSON.stringify(layout) !== baseline;
+  }, [layout, baseline]);
+
+  useBeforeUnloadGuard(dirty);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -28,10 +38,9 @@ export default function AdminSectionsPage() {
       const json = await adminFetchJson<LayoutPayload>(
         "/api/admin/content?doc=layout",
       );
-      if (!json.data?.sections) {
-        throw new Error("چیدمان ناقص است.");
-      }
+      if (!json.data?.sections) throw new Error("چیدمان ناقص است.");
       setLayout(json.data);
+      setBaseline(JSON.stringify(json.data));
     } catch (err) {
       setLayout(null);
       setError(errorMessage(err, "چیدمان بارگذاری نشد."));
@@ -57,10 +66,11 @@ export default function AdminSectionsPage() {
 
   function toggle(index: number, enabled: boolean) {
     if (!layout) return;
-    const next = layout.sections.map((s, i) =>
-      i === index ? { ...s, enabled } : s,
-    );
-    setLayout({ sections: next });
+    setLayout({
+      sections: layout.sections.map((s, i) =>
+        i === index ? { ...s, enabled } : s,
+      ),
+    });
   }
 
   async function save() {
@@ -76,6 +86,7 @@ export default function AdminSectionsPage() {
         headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify({ doc: "layout", data: layout }),
       });
+      setBaseline(JSON.stringify(layout));
       pushToast("چیدمان ذخیره شد.", "success");
     } catch (err) {
       pushToast(errorMessage(err, "خطا در ذخیره."), "error");
@@ -84,10 +95,7 @@ export default function AdminSectionsPage() {
     }
   }
 
-  if (loading) {
-    return <p className="text-muted">در حال بارگذاری...</p>;
-  }
-
+  if (loading) return <p className="text-muted">در حال بارگذاری...</p>;
   if (error || !layout) {
     return (
       <AdminErrorState
@@ -98,28 +106,38 @@ export default function AdminSectionsPage() {
   }
 
   return (
-    <div>
+    <div className="pb-20 md:pb-8">
       <AdminPageHeader
         title="چیدمان صفحه"
-        description="سکشن‌های صفحه اصلی را روشن/خاموش کن یا ترتیب‌شان را عوض کن. لینک منوی سکشن‌های خاموش خودکار مخفی می‌شود."
+        description="ترتیب و نمایش سکشن‌های صفحه اصلی."
         actions={
-          <AdminButton type="button" onClick={save} disabled={saving}>
-            {saving ? "در حال ذخیره..." : "ذخیره چیدمان"}
-          </AdminButton>
+          <div className="flex items-center gap-2">
+            {dirty ? (
+              <span className="text-xs text-gold">● ذخیره‌نشده</span>
+            ) : null}
+            <AdminButton
+              type="button"
+              size="sm"
+              onClick={save}
+              disabled={saving || !dirty}
+            >
+              {saving ? "..." : "ذخیره"}
+            </AdminButton>
+          </div>
         }
       />
 
-      <ul className="max-w-xl space-y-2">
+      <ul className="max-w-lg space-y-2">
         {layout.sections.map((section: LayoutSection, index) => (
           <li key={section.id}>
-            <AdminCard className="flex flex-wrap items-center gap-3 py-3">
+            <AdminCard className="flex flex-wrap items-center gap-2 py-2.5">
               <div className="min-w-0 flex-1">
                 <AdminCheckbox
                   label={section.label}
                   checked={section.enabled}
                   onChange={(checked) => toggle(index, checked)}
                 />
-                <p className="mt-1 ps-7 text-[11px] text-dim" dir="ltr">
+                <p className="mt-0.5 ps-6 text-[10px] text-dim" dir="ltr">
                   {section.id}
                 </p>
               </div>
@@ -127,6 +145,8 @@ export default function AdminSectionsPage() {
                 <AdminButton
                   type="button"
                   variant="ghost"
+                  size="sm"
+                  aria-label={`بالا ${section.label}`}
                   onClick={() => move(index, -1)}
                   disabled={index === 0}
                 >
@@ -135,6 +155,8 @@ export default function AdminSectionsPage() {
                 <AdminButton
                   type="button"
                   variant="ghost"
+                  size="sm"
+                  aria-label={`پایین ${section.label}`}
                   onClick={() => move(index, 1)}
                   disabled={index === layout.sections.length - 1}
                 >
@@ -145,6 +167,8 @@ export default function AdminSectionsPage() {
           </li>
         ))}
       </ul>
+
+      <AdminStickySave dirty={dirty} saving={saving} onSave={save} />
     </div>
   );
 }

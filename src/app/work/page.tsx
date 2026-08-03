@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollProgress } from "@/components/shell/ScrollProgress";
 import { WorkArchive } from "@/components/sections/WorkArchive";
 import { CmsProvider } from "@/context/CmsContext";
-import { ensureCmsSeeded, getAllCms } from "@/lib/cms/store";
+import { ensureCmsSeeded, getPublicCms } from "@/lib/cms/store";
 import { mergeLandingCopy } from "@/lib/cms/merge";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export default async function WorkPage() {
   await ensureCmsSeeded();
-  const cms = await getAllCms();
+  const cms = await getPublicCms();
   const copy = mergeLandingCopy(cms.copy);
 
   return (

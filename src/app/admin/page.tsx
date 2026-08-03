@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import type { Lead, LeadStatus } from "@/lib/cms/types";
 import {
   AdminBadge,
@@ -35,8 +36,7 @@ export default function AdminDashboardPage() {
     setLoading(true);
     setError("");
     try {
-      const data = await adminFetchJson<Stats>("/api/admin/stats");
-      setStats(data);
+      setStats(await adminFetchJson<Stats>("/api/admin/stats"));
     } catch (err) {
       setStats(null);
       setError(errorMessage(err, "آمار بارگذاری نشد."));
@@ -53,86 +53,77 @@ export default function AdminDashboardPage() {
     <div>
       <AdminPageHeader
         title="داشبورد"
-        description="نمای سریع از پیام‌ها، محتوا و سکشن‌های فعال."
+        description="وضعیت سریع پیام‌ها و محتوا."
         actions={
-          <>
-            <AdminLinkButton href="/admin/leads">پیام‌ها</AdminLinkButton>
-            <AdminLinkButton href="/admin/content" variant="outline">
-              ویرایش محتوا
-            </AdminLinkButton>
-          </>
+          <AdminLinkButton href="/admin/content" variant="outline" size="sm">
+            ویرایش محتوا
+          </AdminLinkButton>
         }
       />
 
       {error ? <AdminErrorState message={error} onRetry={load} /> : null}
 
       {!error ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              label: "پیام جدید",
-              value: loading ? "…" : (stats?.newLeads ?? "—"),
-              badge: !!stats && stats.newLeads > 0,
-            },
-            {
-              label: "کل پیام‌ها",
-              value: loading ? "…" : (stats?.totalLeads ?? "—"),
-            },
-            {
-              label: "نمونه‌کارها",
-              value: loading ? "…" : (stats?.projectCount ?? "—"),
-            },
-            {
-              label: "سکشن فعال",
-              value: loading ? "…" : (stats?.enabledSections ?? "—"),
-            },
-          ].map((card) => (
-            <AdminCard key={card.label}>
-              <p className="text-xs text-dim">{card.label}</p>
-              <p className="mt-3 font-display text-3xl text-foreground">
-                {card.value}
+        <div className="grid gap-2.5 sm:grid-cols-3">
+          <Link href="/admin/leads?status=new" className="block">
+            <AdminCard className="hover:border-accent/30">
+              <p className="text-[11px] text-dim">پیام جدید</p>
+              <p className="mt-2 font-display text-2xl text-foreground">
+                {loading ? "…" : (stats?.newLeads ?? "—")}
               </p>
-              {card.badge ? (
-                <div className="mt-3">
-                  <AdminBadge tone="accent">نیاز به بررسی</AdminBadge>
-                </div>
-              ) : null}
             </AdminCard>
-          ))}
+          </Link>
+          <Link href="/admin/leads" className="block">
+            <AdminCard className="hover:border-accent/30">
+              <p className="text-[11px] text-dim">کل پیام‌ها</p>
+              <p className="mt-2 font-display text-2xl text-foreground">
+                {loading ? "…" : (stats?.totalLeads ?? "—")}
+              </p>
+            </AdminCard>
+          </Link>
+          <Link href="/admin/content" className="block">
+            <AdminCard className="hover:border-accent/30">
+              <p className="text-[11px] text-dim">نمونه‌کار / سکشن</p>
+              <p className="mt-2 font-display text-2xl text-foreground">
+                {loading
+                  ? "…"
+                  : `${stats?.projectCount ?? "—"} / ${stats?.enabledSections ?? "—"}`}
+              </p>
+            </AdminCard>
+          </Link>
         </div>
       ) : null}
 
-      <div className="mt-10">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="font-display text-xl text-foreground">آخرین پیام‌ها</h2>
-          <AdminLinkButton href="/admin/leads" variant="ghost" className="px-2 py-1">
-            همه پیام‌ها
+      <div className="mt-8">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-medium text-foreground">آخرین پیام‌ها</h2>
+          <AdminLinkButton href="/admin/leads" variant="ghost" size="sm">
+            همه
           </AdminLinkButton>
         </div>
-        {(stats?.recentLeads ?? []).length === 0 && !loading && !error ? (
-          <AdminEmpty>هنوز پیامی ثبت نشده. از فرم سایت یکی بفرست.</AdminEmpty>
-        ) : error ? null : loading ? (
+        {!loading && !error && (stats?.recentLeads ?? []).length === 0 ? (
+          <AdminEmpty>هنوز پیامی نیست.</AdminEmpty>
+        ) : loading && !error ? (
           <p className="text-sm text-muted">در حال بارگذاری...</p>
-        ) : (
+        ) : error ? null : (
           <ul className="space-y-2">
             {(stats?.recentLeads ?? []).map((lead) => (
               <li key={lead.id}>
-                <AdminCard className="py-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm text-foreground">{lead.name}</p>
-                    <AdminBadge
-                      tone={lead.status === "new" ? "accent" : "muted"}
-                    >
-                      {STATUS_FA[lead.status] ?? lead.status}
-                    </AdminBadge>
-                  </div>
-                  <p className="mt-1 text-xs text-muted" dir="ltr">
-                    {lead.contact}
-                  </p>
-                  <p className="mt-2 line-clamp-2 text-sm text-dim">
-                    {lead.message}
-                  </p>
-                </AdminCard>
+                <Link href={`/admin/leads?id=${encodeURIComponent(lead.id)}`}>
+                  <AdminCard className="py-2.5 hover:border-accent/30">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm text-foreground">{lead.name}</p>
+                      <AdminBadge
+                        tone={lead.status === "new" ? "accent" : "muted"}
+                      >
+                        {STATUS_FA[lead.status]}
+                      </AdminBadge>
+                    </div>
+                    <p className="mt-1 line-clamp-1 text-xs text-dim">
+                      {lead.message}
+                    </p>
+                  </AdminCard>
+                </Link>
               </li>
             ))}
           </ul>

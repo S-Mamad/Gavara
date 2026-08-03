@@ -9,27 +9,6 @@
     "heroTitle": "محصول دیجیتال",
     "heroHighlight": "با کیفیت پروداکشن"
   },
-  "heroCta": {
-    "primary": "شروع پروژه",
-    "secondary": "نمونه‌کارها"
-  },
-  "clients": [
-    {
-      "name": "مرهم",
-      "href": "https://marham.paziresh24.com",
-      "logo": "/clients/marham.svg"
-    },
-    {
-      "name": "پذیرش ۲۴",
-      "href": "https://paziresh24.com",
-      "logo": "/clients/paziresh24.svg"
-    },
-    {
-      "name": "حاجی عسل",
-      "href": "https://hajiasal.ir",
-      "logo": "/clients/hajiasal.svg"
-    }
-  ],
   "nav": [
     {
       "id": "home",
@@ -101,12 +80,12 @@
       "bio": "مهندس محصول در پذیرش ۲۴. اونر مرهم و چند پلتفرم live در مقیاس واقعی.",
       "image": "/team/mohammad.png",
       "imagePosition": "50% 16%",
-      "initials": "م‌م",
       "featured": true,
       "links": {
-        "telegram": "https://t.me/Mamad",
-        "github": "https://github.com"
-      }
+        "github": "https://github.com",
+        "telegram": "https://t.me/Mamad"
+      },
+      "initials": "م‌م"
     }
   ],
   "links": [
@@ -129,6 +108,27 @@
       "id": "email",
       "label": "Mohammadi@gmail.com",
       "href": "mailto:Mohammadi@gmail.com"
+    }
+  ],
+  "heroCta": {
+    "primary": "شروع پروژه",
+    "secondary": "نمونه‌کارها"
+  },
+  "clients": [
+    {
+      "name": "مرهم",
+      "href": "https://marham.paziresh24.com",
+      "logo": "/clients/marham.svg"
+    },
+    {
+      "name": "پذیرش ۲۴",
+      "href": "https://paziresh24.com",
+      "logo": "/clients/paziresh24.svg"
+    },
+    {
+      "name": "حاجی عسل",
+      "href": "https://hajiasal.ir",
+      "logo": "/clients/hajiasal.svg"
     }
   ]
 }

@@ -17,9 +17,15 @@ const ERROR_FA: Record<string, string> = {
   no_file: "فایلی انتخاب نشده.",
   invalid_type: "فرمت تصویر مجاز نیست (png، jpg، webp، gif).",
   too_large: "حجم فایل بیش از ۵ مگابایت است.",
+  quota: "سقف تعداد فایل‌های آپلود پر شده است.",
   layout_empty: "حداقل یک سکشن باید فعال باشد.",
   unknown_doc: "سند نامعتبر است.",
   unknown_action: "عملیات نامعتبر است.",
+  validation: "داده نامعتبر است.",
+  in_use: "این فایل در محتوا استفاده شده.",
+  not_found: "مورد پیدا نشد.",
+  weak_admin_password: "رمز ادمین پروداکشن ضعیف یا تنظیم نشده.",
+  weak_admin_secret: "سکرت نشست پروداکشن ضعیف یا تنظیم نشده.",
   error: "خطای سرور. دوباره امتحان کن.",
 };
 

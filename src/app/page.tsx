@@ -3,7 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollProgress } from "@/components/shell/ScrollProgress";
 import { HomeSections } from "@/components/shell/HomeSections";
 import { CmsProvider } from "@/context/CmsContext";
-import { ensureCmsSeeded, getAllCms } from "@/lib/cms/store";
+import { ensureCmsSeeded, getPublicCms } from "@/lib/cms/store";
 import { mergeLandingCopy } from "@/lib/cms/merge";
 import {
   buildOrganizationJsonLd,
@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   await ensureCmsSeeded();
-  const cms = await getAllCms();
+  const cms = await getPublicCms();
   const copy = mergeLandingCopy(cms.copy);
   const data = cms.site;
 

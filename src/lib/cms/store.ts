@@ -50,6 +50,27 @@ const FALLBACK_LAYOUT: LayoutConfig = {
   ],
 };
 
+export type PublicCms = Omit<CmsMap, "leads">;
+
+const writeChains = new Map<string, Promise<unknown>>();
+
+async function withDocLock<T>(doc: CmsDocument, fn: () => Promise<T>): Promise<T> {
+  const prev = writeChains.get(doc) ?? Promise.resolve();
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const chained = prev.then(() => gate);
+  writeChains.set(doc, chained);
+  await prev.catch(() => undefined);
+  try {
+    return await fn();
+  } finally {
+    release();
+    if (writeChains.get(doc) === chained) writeChains.delete(doc);
+  }
+}
+
 function filePath(doc: CmsDocument) {
   return path.join(CMS_DIR, `${doc}.json`);
 }
@@ -67,13 +88,31 @@ async function readJsonFile<T>(doc: CmsDocument, fallback: T): Promise<T> {
   }
 }
 
-async function writeJsonFile<T>(doc: CmsDocument, data: T): Promise<void> {
+/** Windows-safe atomic replace: write tmp → unlink target → rename. */
+async function atomicReplace(target: string, payload: string): Promise<void> {
+  const tmp = `${target}.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}.tmp`;
+  await fs.writeFile(tmp, payload, { encoding: "utf8" });
+  try {
+    await fs.rename(tmp, target);
+  } catch {
+    try {
+      await fs.unlink(target);
+    } catch {
+      /* target may not exist */
+    }
+    await fs.rename(tmp, target);
+  }
+}
+
+async function writeJsonUnlocked<T>(doc: CmsDocument, data: T): Promise<void> {
   await ensureDir();
   const target = filePath(doc);
-  const tmp = `${target}.${process.pid}.${Date.now()}.tmp`;
   const payload = `${JSON.stringify(data, null, 2)}\n`;
-  await fs.writeFile(tmp, payload, { encoding: "utf8" });
-  await fs.rename(tmp, target);
+  await atomicReplace(target, payload);
+}
+
+async function writeJsonFile<T>(doc: CmsDocument, data: T): Promise<void> {
+  await withDocLock(doc, () => writeJsonUnlocked(doc, data));
 }
 
 export async function getSite(): Promise<SiteConfig> {
@@ -116,57 +155,88 @@ export async function setLeads(data: Lead[]): Promise<void> {
   await writeJsonFile("leads", data);
 }
 
+export async function updateLeads(
+  mutator: (leads: Lead[]) => Lead[],
+): Promise<Lead[]> {
+  return withDocLock("leads", async () => {
+    const current = await readJsonFile<Lead[]>("leads", []);
+    const next = mutator(current);
+    await writeJsonUnlocked("leads", next);
+    return next;
+  });
+}
+
+export async function countNewLeads(): Promise<number> {
+  const leads = await getLeads();
+  return leads.filter((l) => l.status === "new").length;
+}
+
 export async function appendLead(
   lead: Omit<Lead, "id" | "createdAt" | "status"> & {
     projectType?: string;
   },
 ): Promise<Lead> {
-  const leads = await getLeads();
-  const entry: Lead = {
-    id: `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    name: lead.name.trim(),
-    contact: lead.contact.trim(),
-    message: lead.message.trim(),
-    projectType: lead.projectType?.trim() || undefined,
-    status: "new",
-    createdAt: new Date().toISOString(),
-  };
-  leads.unshift(entry);
-  await setLeads(leads);
-  return entry;
+  let created!: Lead;
+  await updateLeads((leads) => {
+    created = {
+      id: `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      name: lead.name.trim(),
+      contact: lead.contact.trim(),
+      message: lead.message.trim(),
+      projectType: lead.projectType?.trim() || undefined,
+      status: "new",
+      createdAt: new Date().toISOString(),
+    };
+    return [created, ...leads];
+  });
+  return created;
 }
 
-export async function getAllCms(): Promise<CmsMap> {
-  const [site, projects, copy, layout, leads] = await Promise.all([
+/** Public site data — never loads leads (PII). */
+export async function getPublicCms(): Promise<PublicCms> {
+  const [site, projects, copy, layout] = await Promise.all([
     getSite(),
     getProjects(),
     getCopy(),
     getLayout(),
-    getLeads(),
   ]);
-  return { site, projects, copy, layout, leads };
+  return { site, projects, copy, layout };
 }
 
-export async function ensureCmsSeeded(): Promise<void> {
-  await ensureDir();
-  const docs: Array<{ doc: CmsDocument; fallback: unknown }> = [
-    { doc: "site", fallback: fallbackSite },
-    { doc: "projects", fallback: fallbackProjects },
-    { doc: "copy", fallback: FALLBACK_COPY },
-    { doc: "layout", fallback: FALLBACK_LAYOUT },
-    { doc: "leads", fallback: [] },
-  ];
+export async function getAllCms(): Promise<CmsMap> {
+  const [publicCms, leads] = await Promise.all([getPublicCms(), getLeads()]);
+  return { ...publicCms, leads };
+}
 
-  for (const { doc, fallback } of docs) {
-    try {
-      await fs.access(filePath(doc));
-      // Recover if file is empty/corrupt
-      const raw = await fs.readFile(filePath(doc), "utf8");
-      JSON.parse(raw);
-    } catch {
-      await writeJsonFile(doc, fallback);
-    }
+let seedPromise: Promise<void> | null = null;
+
+export async function ensureCmsSeeded(): Promise<void> {
+  if (!seedPromise) {
+    seedPromise = (async () => {
+      await ensureDir();
+      const docs: Array<{ doc: CmsDocument; fallback: unknown }> = [
+        { doc: "site", fallback: fallbackSite },
+        { doc: "projects", fallback: fallbackProjects },
+        { doc: "copy", fallback: FALLBACK_COPY },
+        { doc: "layout", fallback: FALLBACK_LAYOUT },
+        { doc: "leads", fallback: [] },
+      ];
+
+      for (const { doc, fallback } of docs) {
+        try {
+          await fs.access(filePath(doc));
+          const raw = await fs.readFile(filePath(doc), "utf8");
+          JSON.parse(raw);
+        } catch {
+          await writeJsonFile(doc, fallback);
+        }
+      }
+    })().catch((err) => {
+      seedPromise = null;
+      throw err;
+    });
   }
+  await seedPromise;
 }
 
 export async function resetCmsFromSeed(
@@ -183,3 +253,46 @@ export async function resetCmsFromSeed(
     if (map[doc] !== undefined) await writeJsonFile(doc, map[doc]);
   }
 }
+
+export async function restoreCmsFromBackup(data: {
+  site?: SiteConfig;
+  projects?: ProjectItem[];
+  copy?: EditableCopy;
+  layout?: LayoutConfig;
+  leads?: Lead[];
+}): Promise<string[]> {
+  const restored: string[] = [];
+  if (data.site) {
+    await setSite(data.site);
+    restored.push("site");
+  }
+  if (data.projects) {
+    await setProjects(data.projects);
+    restored.push("projects");
+  }
+  if (data.copy) {
+    await setCopy(data.copy);
+    restored.push("copy");
+  }
+  if (data.layout) {
+    await setLayout(data.layout);
+    restored.push("layout");
+  }
+  if (data.leads) {
+    await setLeads(data.leads);
+    restored.push("leads");
+  }
+  return restored;
+}
+
+export function findUploadReferences(url: string, cms: PublicCms): string[] {
+  const refs: string[] = [];
+  const hay = JSON.stringify(cms);
+  if (!hay.includes(url)) return refs;
+  if (JSON.stringify(cms.site).includes(url)) refs.push("site");
+  if (JSON.stringify(cms.projects).includes(url)) refs.push("projects");
+  if (JSON.stringify(cms.copy).includes(url)) refs.push("copy");
+  return refs;
+}
+
+export { FALLBACK_COPY, FALLBACK_LAYOUT };

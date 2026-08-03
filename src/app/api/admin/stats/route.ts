@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
-import { getLeads, getAllCms, ensureCmsSeeded } from "@/lib/cms/store";
+import {
+  getLeads,
+  getPublicCms,
+  ensureCmsSeeded,
+  countNewLeads,
+} from "@/lib/cms/store";
 
 export async function GET() {
   await ensureCmsSeeded();
-  const cms = await getAllCms();
-  const leads = await getLeads();
-  const newCount = leads.filter((l) => l.status === "new").length;
+  const [cms, leads, newCount] = await Promise.all([
+    getPublicCms(),
+    getLeads(),
+    countNewLeads(),
+  ]);
   return NextResponse.json({
     newLeads: newCount,
     totalLeads: leads.length,

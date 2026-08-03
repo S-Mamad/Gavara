@@ -7,9 +7,16 @@ import {
   AdminCard,
   AdminEmpty,
   AdminErrorState,
+  AdminFileButton,
   AdminPageHeader,
+  useAdminConfirm,
 } from "@/components/admin/ui";
-import { adminFetch, adminFetchJson, errorMessage } from "@/lib/admin/fetchJson";
+import {
+  AdminFetchError,
+  adminFetch,
+  adminFetchJson,
+  errorMessage,
+} from "@/lib/admin/fetchJson";
 
 type MediaItem = {
   name: string;
@@ -20,10 +27,23 @@ type MediaItem = {
 
 type MediaPayload = { items: MediaItem[] };
 
+function formatFaDate(iso: string) {
+  try {
+    return new Intl.DateTimeFormat("fa-IR", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
+
 export default function AdminMediaPage() {
   const { pushToast } = useToast();
+  const { ask, dialog } = useAdminConfirm();
   const [items, setItems] = useState<MediaItem[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -45,8 +65,11 @@ export default function AdminMediaPage() {
     load();
   }, [load]);
 
-  async function onUpload(file: File | undefined) {
-    if (!file) return;
+  async function onUpload(file: File) {
+    if (file.size > 5 * 1024 * 1024) {
+      pushToast("حجم فایل بیش از ۵ مگابایت است.", "error");
+      return;
+    }
     setUploading(true);
     try {
       const body = new FormData();
@@ -56,14 +79,19 @@ export default function AdminMediaPage() {
         body,
       });
       const json = (await res.json()) as { url?: string };
-      pushToast("آپلود شد.", "success");
+      let copied = false;
       if (json.url) {
         try {
           await navigator.clipboard.writeText(json.url);
+          copied = true;
         } catch {
           /* ignore */
         }
       }
+      pushToast(
+        copied ? "آپلود شد و آدرس کپی شد." : "آپلود شد.",
+        "success",
+      );
       await load();
     } catch (err) {
       pushToast(errorMessage(err, "آپلود ناموفق بود."), "error");
@@ -81,46 +109,68 @@ export default function AdminMediaPage() {
     }
   }
 
+  async function removeItem(item: MediaItem, force = false) {
+    if (!force) {
+      const ok = await ask({
+        title: "حذف فایل",
+        description: `«${item.name}» حذف شود؟`,
+        confirmLabel: "حذف",
+        tone: "danger",
+      });
+      if (!ok) return;
+    }
+    setDeleting(item.name);
+    try {
+      await adminFetch("/api/admin/media", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({ name: item.name, force }),
+      });
+      pushToast("حذف شد.", "success");
+      await load();
+    } catch (err) {
+      if (err instanceof AdminFetchError && err.code === "in_use" && !force) {
+        const forceOk = await ask({
+          title: "فایل در محتوا استفاده شده",
+          description: `${err.message} با این حال حذف شود؟`,
+          confirmLabel: "حذف اجباری",
+          tone: "danger",
+        });
+        if (forceOk) await removeItem(item, true);
+        return;
+      }
+      pushToast(errorMessage(err, "حذف ناموفق بود."), "error");
+    } finally {
+      setDeleting(null);
+    }
+  }
+
   return (
     <div>
+      {dialog}
       <AdminPageHeader
         title="رسانه"
-        description="تصاویر آپلودشده برای تیم و نمونه‌کارها. بعد از آپلود، آدرس کپی می‌شود."
+        description="تصاویر آپلودشده برای تیم و نمونه‌کارها."
         actions={
-          <label className="inline-flex cursor-pointer">
-            <span
-              className={`inline-flex items-center justify-center gap-2 rounded-full border border-accent/35 bg-accent px-4 py-2.5 text-sm font-medium text-void ${
-                uploading ? "opacity-55" : ""
-              }`}
-            >
-              {uploading ? "در حال آپلود..." : "آپلود تصویر"}
-            </span>
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
-              className="hidden"
-              disabled={uploading}
-              onChange={(e) => {
-                onUpload(e.target.files?.[0]);
-                e.target.value = "";
-              }}
-            />
-          </label>
+          <AdminFileButton
+            label={uploading ? "در حال آپلود..." : "آپلود تصویر"}
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            disabled={uploading}
+            onFile={onUpload}
+          />
         }
       />
 
       {error ? <AdminErrorState message={error} onRetry={load} /> : null}
-
       {!error && loading ? (
         <p className="text-sm text-muted">در حال بارگذاری...</p>
       ) : null}
-
       {!error && !loading && items.length === 0 ? (
         <AdminEmpty>هنوز فایلی آپلود نشده.</AdminEmpty>
       ) : null}
 
       {!error && !loading && items.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <AdminCard key={item.name} className="overflow-hidden p-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -133,17 +183,30 @@ export default function AdminMediaPage() {
                 <p className="truncate text-xs text-muted" dir="ltr">
                   {item.url}
                 </p>
-                <p className="text-[11px] text-dim">
-                  {(item.size / 1024).toFixed(1)} KB
+                <p className="text-[10px] text-dim">
+                  {(item.size / 1024).toFixed(1)} KB · {formatFaDate(item.mtime)}
                 </p>
-                <AdminButton
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => copyUrl(item.url)}
-                >
-                  کپی آدرس
-                </AdminButton>
+                <div className="flex gap-1.5">
+                  <AdminButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => copyUrl(item.url)}
+                  >
+                    کپی
+                  </AdminButton>
+                  <AdminButton
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    className="flex-1"
+                    disabled={deleting === item.name}
+                    onClick={() => removeItem(item)}
+                  >
+                    {deleting === item.name ? "..." : "حذف"}
+                  </AdminButton>
+                </div>
               </div>
             </AdminCard>
           ))}

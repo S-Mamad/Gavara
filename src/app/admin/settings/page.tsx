@@ -1,20 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import {
   AdminButton,
   AdminCard,
+  AdminCheckbox,
+  AdminFileButton,
   AdminLinkButton,
   AdminPageHeader,
+  useAdminConfirm,
 } from "@/components/admin/ui";
 import { adminFetch, errorMessage } from "@/lib/admin/fetchJson";
 
 export default function AdminSettingsPage() {
   const { pushToast } = useToast();
+  const { ask, dialog } = useAdminConfirm();
   const router = useRouter();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [includeLeads, setIncludeLeads] = useState(true);
 
   async function downloadBackup() {
     setBusy(true);
@@ -38,14 +44,45 @@ export default function AdminSettingsPage() {
     }
   }
 
-  async function resetContent() {
-    if (
-      !confirm(
-        "محتوای سایت (به‌جز پیام‌ها) به نسخه اولیه برگردد؟ این عمل برگشت‌پذیر نیست.",
-      )
-    ) {
-      return;
+  async function restoreFromFile(file: File | undefined) {
+    if (!file) return;
+    const ok = await ask({
+      title: "بازیابی بکاپ",
+      description:
+        "محتوای فعلی با فایل انتخاب‌شده جایگزین می‌شود. این عمل برگشت‌پذیر نیست.",
+      confirmLabel: "بازیابی",
+      tone: "danger",
+      requireText: "RESTORE",
+    });
+    if (!ok) return;
+    setBusy(true);
+    try {
+      const data = JSON.parse(await file.text()) as unknown;
+      await adminFetch("/api/admin/backup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({ action: "restore", includeLeads, data }),
+      });
+      pushToast("بکاپ بازیابی شد.", "success");
+      router.refresh();
+      router.push("/admin/content");
+    } catch (err) {
+      pushToast(errorMessage(err, "بازیابی ناموفق بود."), "error");
+    } finally {
+      setBusy(false);
+      if (fileRef.current) fileRef.current.value = "";
     }
+  }
+
+  async function resetContent() {
+    const ok = await ask({
+      title: "ریست محتوا",
+      description: "محتوا (بدون پیام‌ها) به نسخه اولیه برگردد؟",
+      confirmLabel: "ریست",
+      tone: "danger",
+      requireText: "RESET",
+    });
+    if (!ok) return;
     setBusy(true);
     try {
       await adminFetch("/api/admin/backup", {
@@ -68,57 +105,73 @@ export default function AdminSettingsPage() {
 
   return (
     <div>
+      {dialog}
       <AdminPageHeader
         title="تنظیمات"
-        description="امنیت، بکاپ و بازیابی محتوای CMS."
+        description="امنیت، بکاپ و عملیات خطرناک."
       />
 
-      <div className="grid max-w-2xl gap-4">
-        <AdminCard className="space-y-3 text-sm leading-7 text-muted">
-          <p className="font-display text-lg text-foreground">امنیت ورود</p>
+      <div className="grid max-w-xl gap-3">
+        <AdminCard className="space-y-2 text-sm leading-6 text-muted">
+          <p className="text-sm font-medium text-foreground">امنیت ورود</p>
           <p>
             رمز از{" "}
             <code className="text-accent" dir="ltr">
-              .env.local
+              .env
             </code>{" "}
-            خوانده می‌شود:
+            خوانده می‌شود. در پروداکشن هر دو الزامی‌اند:
           </p>
-          <ul className="list-disc pe-5">
+          <ul className="list-disc pe-5 text-xs">
             <li dir="ltr">ADMIN_PASSWORD</li>
             <li dir="ltr">ADMIN_SESSION_SECRET</li>
           </ul>
-          <p>بعد از تغییر env، سرور را ری‌استارت کن.</p>
         </AdminCard>
 
         <AdminCard className="space-y-3">
-          <p className="font-display text-lg text-foreground">بکاپ و بازیابی</p>
-          <p className="text-sm text-muted">
-            خروجی کامل JSON از محتوا و پیام‌ها، یا برگشت محتوا به seed اولیه.
+          <p className="text-sm font-medium text-foreground">بکاپ</p>
+          <p className="text-xs text-muted">
+            دانلود JSON کامل یا بازیابی از همان فایل.
           </p>
+          <AdminCheckbox
+            label="در بازیابی، پیام‌ها هم جایگزین شوند"
+            checked={includeLeads}
+            onChange={setIncludeLeads}
+          />
           <div className="flex flex-wrap gap-2">
-            <AdminButton
-              type="button"
-              onClick={downloadBackup}
-              disabled={busy}
-            >
+            <AdminButton type="button" onClick={downloadBackup} disabled={busy}>
               دانلود بکاپ
             </AdminButton>
-            <AdminButton
-              type="button"
-              variant="danger"
-              onClick={resetContent}
+            <AdminFileButton
+              label="بازیابی از فایل"
+              accept="application/json,.json"
+              variant="outline"
               disabled={busy}
-            >
-              ریست محتوا
-            </AdminButton>
+              onFile={(file) => restoreFromFile(file)}
+            />
+            <input ref={fileRef} type="file" className="hidden" />
           </div>
         </AdminCard>
 
-        <AdminCard className="space-y-2 text-sm text-muted">
-          <p className="font-display text-lg text-foreground">مسیرها</p>
+        <AdminCard className="space-y-3 border-signal/25">
+          <p className="text-sm font-medium text-signal">منطقه خطر</p>
+          <p className="text-xs text-muted">
+            ریست محتوا به seed اولیه. پیام‌ها پاک نمی‌شوند.
+          </p>
+          <AdminButton
+            type="button"
+            variant="danger"
+            onClick={resetContent}
+            disabled={busy}
+          >
+            ریست محتوا
+          </AdminButton>
+        </AdminCard>
+
+        <AdminCard className="space-y-1 text-xs text-muted">
+          <p className="text-sm font-medium text-foreground">مسیرها</p>
           <p dir="ltr">data/cms/*.json</p>
           <p dir="ltr">public/uploads/</p>
-          <AdminLinkButton href="/" variant="ghost" className="px-0">
+          <AdminLinkButton href="/" variant="ghost" size="sm" className="mt-2 px-0">
             مشاهده سایت
           </AdminLinkButton>
         </AdminCard>

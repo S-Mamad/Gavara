@@ -85,6 +85,10 @@ body:has(.admin-surface)::after {
   display: none;
 }
 
+.admin-surface {
+  --admin-gap: 0.75rem;
+}
+
 [id] {
   scroll-margin-top: 6rem;
 }

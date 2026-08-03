@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
 import {
   ADMIN_COOKIE,
+  assertAdminEnvConfigured,
   checkLoginRateLimit,
   createSessionToken,
   verifyPassword,
 } from "@/lib/admin/auth";
 
 export async function POST(request: Request) {
+  const env = assertAdminEnvConfigured();
+  if (!env.ok) {
+    return NextResponse.json(
+      { error: env.code, message: env.message },
+      { status: 503 },
+    );
+  }
+
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip") ||
@@ -35,7 +44,12 @@ export async function POST(request: Request) {
       maxAge: 60 * 60 * 24 * 7,
     });
     return res;
-  } catch {
-    return NextResponse.json({ error: "error" }, { status: 500 });
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "خطای سرور.";
+    return NextResponse.json(
+      { error: "error", message },
+      { status: 500 },
+    );
   }
 }

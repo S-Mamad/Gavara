@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import {
   ensureCmsSeeded,
   getCopy,
@@ -11,13 +10,19 @@ import {
   setProjects,
   setSite,
 } from "@/lib/cms/store";
-import type { EditableCopy, LayoutConfig } from "@/lib/cms/types";
-import type { ProjectItem, SiteConfig } from "@/types";
-
-function revalidateSite() {
-  revalidatePath("/");
-  revalidatePath("/work");
-}
+import {
+  copySchema,
+  layoutSchema,
+  projectsSchema,
+  siteSchema,
+} from "@/lib/cms/schemas";
+import {
+  apiFail,
+  apiOk,
+  apiServerError,
+  revalidateSite,
+  validateOrFail,
+} from "@/lib/admin/api";
 
 export async function GET(request: Request) {
   await ensureCmsSeeded();
@@ -32,50 +37,48 @@ export async function GET(request: Request) {
     case "layout":
       return NextResponse.json({ data: await getLayout() });
     default:
-      return NextResponse.json({ error: "unknown_doc" }, { status: 400 });
+      return apiFail("unknown_doc", "سند نامعتبر است.", 400);
   }
 }
 
 export async function PUT(request: Request) {
   try {
     await ensureCmsSeeded();
-    const body = (await request.json()) as {
-      doc?: string;
-      data?: unknown;
-    };
+    const body = (await request.json()) as { doc?: string; data?: unknown };
 
     switch (body.doc) {
-      case "site":
-        await setSite(body.data as SiteConfig);
+      case "site": {
+        const v = validateOrFail(siteSchema, body.data);
+        if (!v.ok) return v.response;
+        await setSite(v.data);
         revalidateSite();
-        return NextResponse.json({ ok: true });
-      case "projects":
-        await setProjects(body.data as ProjectItem[]);
+        return apiOk();
+      }
+      case "projects": {
+        const v = validateOrFail(projectsSchema, body.data);
+        if (!v.ok) return v.response;
+        await setProjects(v.data);
         revalidateSite();
-        return NextResponse.json({ ok: true });
-      case "copy":
-        await setCopy(body.data as EditableCopy);
+        return apiOk();
+      }
+      case "copy": {
+        const v = validateOrFail(copySchema, body.data);
+        if (!v.ok) return v.response;
+        await setCopy(v.data);
         revalidateSite();
-        return NextResponse.json({ ok: true });
+        return apiOk();
+      }
       case "layout": {
-        const layout = body.data as LayoutConfig;
-        if (!layout?.sections?.some((s) => s.enabled)) {
-          return NextResponse.json(
-            {
-              error: "layout_empty",
-              message: "حداقل یک سکشن باید فعال باشد.",
-            },
-            { status: 400 },
-          );
-        }
-        await setLayout(layout);
+        const v = validateOrFail(layoutSchema, body.data);
+        if (!v.ok) return v.response;
+        await setLayout(v.data);
         revalidateSite();
-        return NextResponse.json({ ok: true });
+        return apiOk();
       }
       default:
-        return NextResponse.json({ error: "unknown_doc" }, { status: 400 });
+        return apiFail("unknown_doc", "سند نامعتبر است.", 400);
     }
   } catch {
-    return NextResponse.json({ error: "error" }, { status: 500 });
+    return apiServerError();
   }
 }
