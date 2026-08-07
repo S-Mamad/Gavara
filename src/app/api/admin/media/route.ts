@@ -5,7 +5,9 @@ import {
   ensureCmsSeeded,
   findUploadReferences,
   getPublicCms,
+  stripUploadReferences,
 } from "@/lib/cms/store";
+import { revalidateSite } from "@/lib/admin/api";
 
 function uploadsDir() {
   return path.join(process.cwd(), "public", "uploads");
@@ -75,9 +77,20 @@ export async function DELETE(request: Request) {
       );
     }
 
+    let stripped: string[] = [];
+    if (refs.length && body.force) {
+      stripped = await stripUploadReferences(url);
+      revalidateSite();
+    }
+
     const target = path.join(uploadsDir(), name);
     await fs.unlink(target);
-    return NextResponse.json({ ok: true, removed: name, refs });
+    return NextResponse.json({
+      ok: true,
+      removed: name,
+      refs,
+      stripped,
+    });
   } catch (err) {
     const code = (err as NodeJS.ErrnoException)?.code;
     if (code === "ENOENT") {

@@ -6,7 +6,6 @@ import { useToast } from "@/components/ui/Toast";
 import {
   AdminBadge,
   AdminButton,
-  AdminCard,
   AdminCheckbox,
   AdminDrawer,
   AdminEmpty,
@@ -16,6 +15,7 @@ import {
   adminTextareaClass,
   useAdminConfirm,
 } from "@/components/admin/ui";
+import { AdminImageUpload } from "@/components/admin/AdminImageUpload";
 import { cn } from "@/lib/utils";
 import { CASE_STYLES, PROJECT_CATEGORIES } from "./types";
 
@@ -63,7 +63,7 @@ export function ProjectsTab({
           <AdminEmpty>هنوز نمونه‌کاری ثبت نشده.</AdminEmpty>
         ) : (
           <div className="space-y-2">
-            {projects.map((item, i) => (
+            {projects.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -73,13 +73,33 @@ export function ProjectsTab({
                   editingId === item.id && "border-accent/40 bg-accent/5",
                 )}
               >
-                <div className="min-w-0">
-                  <p className="truncate text-sm text-foreground">
-                    {item.title || "بدون عنوان"}
-                  </p>
-                  <p className="mt-0.5 truncate text-xs text-dim">
-                    {item.tag || "بدون تگ"}
-                  </p>
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/40">
+                    {item.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.image}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="h-full w-full"
+                        style={{
+                          background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-foreground">
+                      {item.title || "بدون عنوان"}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs text-dim">
+                      {item.tag || "بدون تگ"}
+                      {!item.image ? " · بدون کاور" : ""}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
                   {item.featured ? (
@@ -128,6 +148,19 @@ export function ProjectsTab({
       >
         {project && editingIndex >= 0 ? (
           <div className="grid gap-3">
+            <AdminImageUpload
+              value={project.image}
+              label="تصویر کاور (نمایش در سایت)"
+              hint="این تصویر روی کارت نمونه‌کار نشان داده می‌شود. بعد از آپلود حتماً ذخیره را بزن."
+              onUpload={onUpload}
+              onChange={(url) =>
+                updateProject(editingIndex, { image: url })
+              }
+              onUploaded={() =>
+                pushToast("کاور آماده است؛ ذخیره را بزن تا روی سایت بیاید.")
+              }
+            />
+
             <div className="grid gap-3 sm:grid-cols-2">
               <AdminField label="عنوان">
                 <input
@@ -197,7 +230,7 @@ export function ProjectsTab({
               </AdminField>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <AdminField label="لینک">
+              <AdminField label="لینک پروژه">
                 <input
                   className={adminInputClass}
                   dir="ltr"
@@ -207,10 +240,14 @@ export function ProjectsTab({
                   }
                 />
               </AdminField>
-              <AdminField label="پیش‌نمایش زنده">
+              <AdminField
+                label="آدرس پیش‌نمایش زنده"
+                hint="اختیاری؛ خیلی از سایت‌ها iframe را بلاک می‌کنند"
+              >
                 <input
                   className={adminInputClass}
                   dir="ltr"
+                  placeholder="https://..."
                   value={project.previewUrl ?? ""}
                   onChange={(e) =>
                     updateProject(editingIndex, {
@@ -220,7 +257,7 @@ export function ProjectsTab({
                 />
               </AdminField>
             </div>
-            <AdminField label="تصویر جایگزین">
+            <AdminField label="آدرس تصویر (دستی)" hint="یا از آپلود بالا استفاده کن">
               <input
                 className={adminInputClass}
                 dir="ltr"
@@ -230,22 +267,6 @@ export function ProjectsTab({
                     image: e.target.value || undefined,
                   })
                 }
-              />
-            </AdminField>
-            <AdminField label="آپلود تصویر">
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                className="block w-full text-sm text-muted file:me-3 file:rounded-full file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-void"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  const url = await onUpload(file);
-                  if (!url) return;
-                  updateProject(editingIndex, { image: url });
-                  pushToast("تصویر آماده است؛ ذخیره را بزن.");
-                  e.target.value = "";
-                }}
               />
             </AdminField>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -308,6 +329,23 @@ export function ProjectsTab({
                 }
               />
             </AdminField>
+            <AdminField
+              label="متریک‌ها"
+              hint="با ویرگول جدا کن؛ آمار کوتاه پروژه"
+            >
+              <input
+                className={adminInputClass}
+                value={(project.metrics ?? []).join("، ")}
+                onChange={(e) =>
+                  updateProject(editingIndex, {
+                    metrics: e.target.value
+                      .split(/,|،/)
+                      .map((t) => t.trim())
+                      .filter(Boolean),
+                  })
+                }
+              />
+            </AdminField>
             <AdminField label="سال">
               <input
                 className={adminInputClass}
@@ -332,6 +370,15 @@ export function ProjectsTab({
                 checked={!!project.comingSoon}
                 onChange={(checked) =>
                   updateProject(editingIndex, { comingSoon: checked })
+                }
+              />
+              <AdminCheckbox
+                label="اولویت پیش‌نمایش زنده (iframe)"
+                checked={!!project.preferLivePreview}
+                onChange={(checked) =>
+                  updateProject(editingIndex, {
+                    preferLivePreview: checked || undefined,
+                  })
                 }
               />
             </div>

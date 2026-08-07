@@ -231,6 +231,29 @@ export async function ensureCmsSeeded(): Promise<void> {
           await writeJsonFile(doc, fallback);
         }
       }
+
+      // Backfill cover images for known projects that only had previewUrl
+      // (iframes are often blocked on live hosts).
+      try {
+        const seedById = new Map(
+          (fallbackProjects as ProjectItem[]).map((p) => [p.id, p]),
+        );
+        const current = await readJsonFile(
+          "projects",
+          fallbackProjects as ProjectItem[],
+        );
+        let changed = false;
+        const next = current.map((p) => {
+          if (p.image) return p;
+          const seedImage = seedById.get(p.id)?.image;
+          if (!seedImage) return p;
+          changed = true;
+          return { ...p, image: seedImage };
+        });
+        if (changed) await writeJsonFile("projects", next);
+      } catch {
+        /* ignore migration failures */
+      }
     })().catch((err) => {
       seedPromise = null;
       throw err;
@@ -293,6 +316,62 @@ export function findUploadReferences(url: string, cms: PublicCms): string[] {
   if (JSON.stringify(cms.projects).includes(url)) refs.push("projects");
   if (JSON.stringify(cms.copy).includes(url)) refs.push("copy");
   return refs;
+}
+
+function stripUrlFromValue(value: unknown, url: string): unknown {
+  if (typeof value === "string") {
+    return value === url ? "" : value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => stripUrlFromValue(item, url));
+  }
+  if (value && typeof value === "object") {
+    const next: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(
+      value as Record<string, unknown>,
+    )) {
+      const stripped = stripUrlFromValue(child, url);
+      if (
+        stripped === "" &&
+        (key === "logo" || key === "previewUrl" || key === "visual")
+      ) {
+        continue;
+      }
+      next[key] = stripped;
+    }
+    return next;
+  }
+  return value;
+}
+
+/** Remove a media URL from CMS docs. Returns which docs changed. */
+export async function stripUploadReferences(
+  url: string,
+): Promise<Array<"site" | "projects" | "copy">> {
+  const cms = await getPublicCms();
+  const changed: Array<"site" | "projects" | "copy"> = [];
+
+  if (JSON.stringify(cms.site).includes(url)) {
+    await setSite(stripUrlFromValue(cms.site, url) as SiteConfig);
+    changed.push("site");
+  }
+  if (JSON.stringify(cms.projects).includes(url)) {
+    const next = stripUrlFromValue(cms.projects, url) as ProjectItem[];
+    const cleaned = next.map((p) => {
+      if (!p.image) {
+        const { image: _drop, ...rest } = p;
+        return rest as ProjectItem;
+      }
+      return p;
+    });
+    await setProjects(cleaned);
+    changed.push("projects");
+  }
+  if (JSON.stringify(cms.copy).includes(url)) {
+    await setCopy(stripUrlFromValue(cms.copy, url) as EditableCopy);
+    changed.push("copy");
+  }
+  return changed;
 }
 
 export { FALLBACK_COPY, FALLBACK_LAYOUT };

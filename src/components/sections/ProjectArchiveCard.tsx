@@ -1,12 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react";
 import type { ProjectItem } from "@/types";
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/ui/Reveal";
-import { LiveSitePreview } from "@/components/ui/LiveSitePreview";
+import { ProjectCover } from "@/components/ui/ProjectCover";
 
 export function ProjectArchiveCard({
   project,
@@ -41,29 +40,11 @@ export function ProjectArchiveCard({
         <div
           className="relative aspect-[16/10] overflow-hidden bg-[#0a0a0e]"
         >
-          {project.previewUrl ? (
-            <LiveSitePreview
-              src={project.previewUrl}
-              title={project.title}
-              fallbackGradient={project.gradient}
-            />
-          ) : project.image ? (
-            <Image
-              src={project.image}
-              alt={project.title}
-              fill
-              className="object-cover opacity-80 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.04]"
-              sizes="(max-width: 768px) 100vw, 33vw"
-            />
-          ) : null}
-          <div
-            className={cn(
-              "pointer-events-none absolute inset-0",
-              project.previewUrl
-                ? "bg-gradient-to-t from-void/55 via-transparent to-transparent"
-                : "bg-gradient-to-t from-void via-transparent to-transparent",
-            )}
+          <ProjectCover
+            project={project}
+            sizes="(max-width: 768px) 100vw, 33vw"
           />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-void via-transparent to-transparent" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
             <span className="label-mono text-[10px] text-foreground/80">
               {project.tag}

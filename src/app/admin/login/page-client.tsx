@@ -51,11 +51,23 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ password }),
       });
       if (!res.ok) {
-        setError(
-          res.status === 429
-            ? "تلاش زیاد. کمی بعد دوباره امتحان کن."
-            : "رمز اشتباه است.",
-        );
+        let serverMessage = "";
+        try {
+          const json = (await res.json()) as {
+            message?: string;
+            error?: string;
+          };
+          serverMessage = json.message?.trim() || "";
+        } catch {
+          /* ignore */
+        }
+        if (res.status === 429) {
+          setError("تلاش زیاد. کمی بعد دوباره امتحان کن.");
+        } else if (serverMessage) {
+          setError(serverMessage);
+        } else {
+          setError("رمز اشتباه است.");
+        }
         return;
       }
       pushToast("وارد شدید.", "success");

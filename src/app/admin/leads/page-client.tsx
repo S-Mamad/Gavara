@@ -71,10 +71,22 @@ export default function AdminLeadsClient() {
   const [menuOpen, setMenuOpen] = useState(false);
   const markedRef = useRef<Set<string>>(new Set());
   const initialLoad = useRef(true);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setFilter(parseStatus(searchParams.get("status")));
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
+  }, [menuOpen]);
 
   const load = useCallback(
     async (opts?: { silent?: boolean }) => {
@@ -117,8 +129,14 @@ export default function AdminLeadsClient() {
     [leads, selected],
   );
 
-  async function patchStatus(ids: string[], status: LeadStatus, silent = false) {
+  async function patchStatus(
+    ids: string[],
+    status: LeadStatus,
+    opts?: { silent?: boolean; skipReload?: boolean },
+  ) {
     if (!ids.length) return;
+    const silent = opts?.silent ?? false;
+    const skipReload = opts?.skipReload ?? false;
     setBusy(true);
     try {
       await adminFetch("/api/admin/leads", {
@@ -126,7 +144,13 @@ export default function AdminLeadsClient() {
         headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify({ ids, status }),
       });
-      await load({ silent: true });
+      if (!skipReload) {
+        await load({ silent: true });
+      } else {
+        setLeads((prev) =>
+          prev.map((l) => (ids.includes(l.id) ? { ...l, status } : l)),
+        );
+      }
       if (active && ids.includes(active.id)) {
         setActive((prev) => (prev ? { ...prev, status } : prev));
       }
@@ -142,7 +166,17 @@ export default function AdminLeadsClient() {
     setActive(lead);
     if (lead.status === "new" && !markedRef.current.has(lead.id)) {
       markedRef.current.add(lead.id);
-      await patchStatus([lead.id], "read", true);
+      await patchStatus([lead.id], "read", {
+        silent: true,
+        skipReload: filter === "new",
+      });
+    }
+  }
+
+  function closeLead() {
+    setActive(null);
+    if (filter === "new") {
+      void load({ silent: true });
     }
   }
 
@@ -265,6 +299,14 @@ export default function AdminLeadsClient() {
               </AdminButton>
               <AdminButton
                 size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => patchStatus(selected, "archived")}
+              >
+                آرشیو
+              </AdminButton>
+              <AdminButton
+                size="sm"
                 variant="danger"
                 disabled={busy}
                 onClick={() => remove(selected)}
@@ -273,7 +315,7 @@ export default function AdminLeadsClient() {
               </AdminButton>
             </>
           ) : null}
-          <div className="relative">
+          <div className="relative" ref={menuRef}>
             <AdminButton
               size="sm"
               variant="ghost"
@@ -381,7 +423,7 @@ export default function AdminLeadsClient() {
       <AdminDrawer
         open={!!active}
         title={active?.name ?? ""}
-        onClose={() => setActive(null)}
+        onClose={closeLead}
         footer={
           active ? (
             <div className="flex flex-wrap gap-1.5">
@@ -401,6 +443,19 @@ export default function AdminLeadsClient() {
                   }}
                 >
                   ایمیل
+                </AdminButton>
+              ) : null}
+              {active.status !== "new" ? (
+                <AdminButton
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => {
+                    markedRef.current.delete(active.id);
+                    void patchStatus([active.id], "new");
+                  }}
+                >
+                  علامت جدید
                 </AdminButton>
               ) : null}
               {active.status !== "archived" ? (

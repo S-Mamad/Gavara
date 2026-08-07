@@ -66,8 +66,8 @@ export default function AdminMediaPage() {
   }, [load]);
 
   async function onUpload(file: File) {
-    if (file.size > 5 * 1024 * 1024) {
-      pushToast("حجم فایل بیش از ۵ مگابایت است.", "error");
+    if (file.size > 8 * 1024 * 1024) {
+      pushToast("حجم فایل بیش از ۸ مگابایت است.", "error");
       return;
     }
     setUploading(true);
@@ -132,8 +132,8 @@ export default function AdminMediaPage() {
       if (err instanceof AdminFetchError && err.code === "in_use" && !force) {
         const forceOk = await ask({
           title: "فایل در محتوا استفاده شده",
-          description: `${err.message} با این حال حذف شود؟`,
-          confirmLabel: "حذف اجباری",
+          description: `${err.message} با حذف اجباری، آدرس از محتوا هم پاک می‌شود و بعد فایل حذف می‌شود.`,
+          confirmLabel: "حذف اجباری از محتوا",
           tone: "danger",
         });
         if (forceOk) await removeItem(item, true);

@@ -5,6 +5,38 @@ import { GithubLogo, TelegramLogo } from "@phosphor-icons/react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { BrandLockup } from "@/components/ui/BrandLockup";
 import { useSite } from "@/context/CmsContext";
+import type { NavItem } from "@/types";
+
+function FooterNavLink({ item }: { item: NavItem }) {
+  const external =
+    item.href.startsWith("http://") ||
+    item.href.startsWith("https://") ||
+    item.href.startsWith("mailto:") ||
+    item.href.startsWith("tel:");
+
+  const className =
+    "text-[13px] text-muted transition-colors hover:text-accent";
+
+  if (external) {
+    return (
+      <a
+        href={item.href}
+        className={className}
+        target={item.href.startsWith("http") ? "_blank" : undefined}
+        rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+        dir="ltr"
+      >
+        {item.label}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={item.href} className={className}>
+      {item.label}
+    </Link>
+  );
+}
 
 export function Footer() {
   const data = useSite();
@@ -12,6 +44,7 @@ export function Footer() {
   const telegram = data.links.find((l) => l.id === "telegram");
   const email = data.links.find((l) => l.id === "email");
   const year = new Date().getFullYear();
+  const customNav = data.footerNav?.length ? data.footerNav : null;
 
   return (
     <footer className="border-t border-border/80">
@@ -35,45 +68,53 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2.5 sm:gap-x-5 md:justify-end">
-          {github ? (
-            <a
-              href={github.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-[13px] text-muted transition-colors hover:text-accent"
-              dir="ltr"
-            >
-              <GithubLogo className="h-4 w-4" weight="fill" />
-              {github.label}
-            </a>
-          ) : null}
-          {telegram ? (
-            <a
-              href={telegram.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-[13px] text-muted transition-colors hover:text-accent"
-              dir="ltr"
-            >
-              <TelegramLogo className="h-4 w-4" weight="fill" />
-              {telegram.label}
-            </a>
-          ) : null}
-          {email ? (
-            <a
-              href={email.href}
-              className="text-[13px] text-muted transition-colors hover:text-accent"
-              dir="ltr"
-            >
-              {email.label}
-            </a>
-          ) : null}
-          <Link
-            href="/#contact"
-            className="text-[13px] text-muted transition-colors hover:text-accent"
-          >
-            ارتباط
-          </Link>
+          {customNav
+            ? customNav.map((item) => (
+                <FooterNavLink key={`${item.id}-${item.href}`} item={item} />
+              ))
+            : (
+                <>
+                  {github ? (
+                    <a
+                      href={github.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[13px] text-muted transition-colors hover:text-accent"
+                      dir="ltr"
+                    >
+                      <GithubLogo className="h-4 w-4" weight="fill" />
+                      {github.label}
+                    </a>
+                  ) : null}
+                  {telegram ? (
+                    <a
+                      href={telegram.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[13px] text-muted transition-colors hover:text-accent"
+                      dir="ltr"
+                    >
+                      <TelegramLogo className="h-4 w-4" weight="fill" />
+                      {telegram.label}
+                    </a>
+                  ) : null}
+                  {email ? (
+                    <a
+                      href={email.href}
+                      className="text-[13px] text-muted transition-colors hover:text-accent"
+                      dir="ltr"
+                    >
+                      {email.label}
+                    </a>
+                  ) : null}
+                  <Link
+                    href="/#contact"
+                    className="text-[13px] text-muted transition-colors hover:text-accent"
+                  >
+                    ارتباط
+                  </Link>
+                </>
+              )}
         </div>
       </div>
     </footer>

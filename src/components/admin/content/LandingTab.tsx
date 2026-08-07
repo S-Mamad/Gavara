@@ -1,6 +1,7 @@
 "use client";
 
 import type { ClientItem, SiteConfig, WhyPoint } from "@/types";
+import { useToast } from "@/components/ui/Toast";
 import {
   AdminButton,
   AdminCard,
@@ -9,13 +10,16 @@ import {
   adminTextareaClass,
   useAdminConfirm,
 } from "@/components/admin/ui";
+import { AdminImageUpload } from "@/components/admin/AdminImageUpload";
 
 type LandingTabProps = {
   site: SiteConfig;
   onChange: (site: SiteConfig) => void;
+  onUpload: (file: File) => Promise<string | null>;
 };
 
-export function LandingTab({ site, onChange }: LandingTabProps) {
+export function LandingTab({ site, onChange, onUpload }: LandingTabProps) {
+  const { pushToast } = useToast();
   const { ask, dialog } = useAdminConfirm();
   const clients = site.clients ?? [];
   const whyPoints = site.whyPoints ?? [];
@@ -29,35 +33,50 @@ export function LandingTab({ site, onChange }: LandingTabProps) {
           {clients.map((client, i) => (
             <div
               key={`client-${i}`}
-              className="grid gap-3 border-t border-white/8 pt-3 first:border-0 first:pt-0 sm:grid-cols-2"
+              className="grid gap-3 border-t border-white/8 pt-3 first:border-0 first:pt-0"
             >
-              <AdminField label="نام">
-                <input
-                  className={adminInputClass}
-                  value={client.name}
-                  onChange={(e) => {
-                    const next = [...clients];
-                    next[i] = { ...client, name: e.target.value };
-                    onChange({ ...site, clients: next });
-                  }}
-                />
-              </AdminField>
-              <AdminField label="لینک">
-                <input
-                  className={adminInputClass}
-                  dir="ltr"
-                  value={client.href ?? ""}
-                  onChange={(e) => {
-                    const next = [...clients];
-                    next[i] = {
-                      ...client,
-                      href: e.target.value || undefined,
-                    };
-                    onChange({ ...site, clients: next });
-                  }}
-                />
-              </AdminField>
-              <AdminField label="لوگو (مسیر)">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <AdminField label="نام">
+                  <input
+                    className={adminInputClass}
+                    value={client.name}
+                    onChange={(e) => {
+                      const next = [...clients];
+                      next[i] = { ...client, name: e.target.value };
+                      onChange({ ...site, clients: next });
+                    }}
+                  />
+                </AdminField>
+                <AdminField label="لینک">
+                  <input
+                    className={adminInputClass}
+                    dir="ltr"
+                    value={client.href ?? ""}
+                    onChange={(e) => {
+                      const next = [...clients];
+                      next[i] = {
+                        ...client,
+                        href: e.target.value || undefined,
+                      };
+                      onChange({ ...site, clients: next });
+                    }}
+                  />
+                </AdminField>
+              </div>
+              <AdminImageUpload
+                value={client.logo}
+                label="لوگوی مشتری"
+                onUpload={onUpload}
+                onChange={(url) => {
+                  const next = [...clients];
+                  next[i] = { ...client, logo: url };
+                  onChange({ ...site, clients: next });
+                }}
+                onUploaded={() =>
+                  pushToast("لوگو آماده است؛ ذخیره را بزن.")
+                }
+              />
+              <AdminField label="آدرس لوگو (دستی)">
                 <input
                   className={adminInputClass}
                   dir="ltr"
@@ -72,27 +91,25 @@ export function LandingTab({ site, onChange }: LandingTabProps) {
                   }}
                 />
               </AdminField>
-              <div className="sm:col-span-2">
-                <AdminButton
-                  type="button"
-                  variant="danger"
-                  onClick={async () => {
-                    const ok = await ask({
-                      title: "حذف مشتری",
-                      description: `مشتری «${client.name || "بدون نام"}» حذف شود؟`,
-                      confirmLabel: "حذف",
-                      tone: "danger",
-                    });
-                    if (!ok) return;
-                    onChange({
-                      ...site,
-                      clients: clients.filter((_, idx) => idx !== i),
-                    });
-                  }}
-                >
-                  حذف مشتری
-                </AdminButton>
-              </div>
+              <AdminButton
+                type="button"
+                variant="danger"
+                onClick={async () => {
+                  const ok = await ask({
+                    title: "حذف مشتری",
+                    description: `مشتری «${client.name || "بدون نام"}» حذف شود؟`,
+                    confirmLabel: "حذف",
+                    tone: "danger",
+                  });
+                  if (!ok) return;
+                  onChange({
+                    ...site,
+                    clients: clients.filter((_, idx) => idx !== i),
+                  });
+                }}
+              >
+                حذف مشتری
+              </AdminButton>
             </div>
           ))}
           <AdminButton

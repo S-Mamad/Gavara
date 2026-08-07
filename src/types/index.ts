@@ -29,6 +29,8 @@ export interface ProjectItem {
   image?: string;
   /** Live site URL rendered as scaled iframe preview */
   previewUrl?: string;
+  /** When true, try live iframe before the cover image */
+  preferLivePreview?: boolean;
   metrics?: string[];
   featured?: boolean;
   year?: string;

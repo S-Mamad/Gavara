@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CmsImage } from "@/components/ui/CmsImage";
 import type { TeamMember } from "@/types";
 
 export function TeamImage({ member }: { member: TeamMember }) {
@@ -16,7 +16,7 @@ export function TeamImage({ member }: { member: TeamMember }) {
   }
 
   return (
-    <Image
+    <CmsImage
       src={member.image}
       alt={member.name}
       fill

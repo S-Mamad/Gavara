@@ -13,7 +13,13 @@ import {
   AdminToolbar,
 } from "@/components/admin/ui";
 import { adminFetch, adminFetchJson, errorMessage } from "@/lib/admin/fetchJson";
-import { useBeforeUnloadGuard, useConfirmLeave } from "@/hooks/useDirtyGuard";
+import {
+  copySchema,
+  projectsSchema,
+  siteSchema,
+  zodErrorMessage,
+} from "@/lib/cms/schemas";
+import { useBeforeUnloadGuard, useRouteLeaveGuard } from "@/hooks/useDirtyGuard";
 import { cn } from "@/lib/utils";
 import { AboutTab } from "./AboutTab";
 import { BrandTab } from "./BrandTab";
@@ -31,16 +37,18 @@ function syncSiteLinksToTeam(next: SiteConfig): SiteConfig {
   const github = next.links.find((l) => l.id === "github")?.href ?? "";
   return {
     ...next,
-    team: [
-      {
-        ...member,
-        links: {
-          ...member.links,
-          telegram,
-          github,
-        },
-      },
-    ],
+    team: next.team.map((m, i) =>
+      i === 0
+        ? {
+            ...m,
+            links: {
+              ...m.links,
+              telegram,
+              github,
+            },
+          }
+        : m,
+    ),
   };
 }
 
@@ -150,11 +158,10 @@ export function ContentPage() {
   const dirty = siteDirty || copyDirty || projectsDirty;
 
   useBeforeUnloadGuard(dirty);
-  const confirmLeave = useConfirmLeave(dirty);
+  useRouteLeaveGuard(dirty);
 
   function switchTab(next: Tab) {
     if (next === tab) return;
-    if (!confirmLeave()) return;
     setTab(next);
   }
 
@@ -163,6 +170,10 @@ export function ContentPage() {
   }
 
   async function upload(file: File): Promise<string | null> {
+    if (file.size > 8 * 1024 * 1024) {
+      pushToast("حجم فایل بیش از ۸ مگابایت است.", "error");
+      return null;
+    }
     const body = new FormData();
     body.append("file", file);
     try {
@@ -170,8 +181,12 @@ export function ContentPage() {
         method: "POST",
         body,
       });
-      const json = (await res.json()) as { url?: string };
-      return json.url ?? null;
+      const json = (await res.json()) as { url?: string; message?: string };
+      if (!json.url) {
+        pushToast(json.message || "آپلود ناموفق بود.", "error");
+        return null;
+      }
+      return json.url;
     } catch (err) {
       pushToast(errorMessage(err, "آپلود ناموفق بود."), "error");
       return null;
@@ -193,58 +208,66 @@ export function ContentPage() {
     if (!site || !copy || !dirty) return;
 
     setSaving(true);
-    const saves: Promise<void>[] = [];
     let savedCount = 0;
 
     try {
       if (siteDirty) {
         const payload = prepareSiteForSave(site, baselineSite);
-        saves.push(
-          adminFetch("/api/admin/content", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json; charset=utf-8" },
-            body: JSON.stringify({ doc: "site", data: payload }),
-          }).then(() => {
-            setSite(payload);
-            setBaselineSite(JSON.stringify(payload));
-            savedCount++;
-          }),
-        );
+        const parsed = siteSchema.safeParse(payload);
+        if (!parsed.success) {
+          throw new Error(zodErrorMessage(parsed.error));
+        }
+        await adminFetch("/api/admin/content", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          body: JSON.stringify({ doc: "site", data: parsed.data }),
+        });
+        setSite(parsed.data);
+        setBaselineSite(JSON.stringify(parsed.data));
+        savedCount += 1;
       }
 
       if (copyDirty) {
-        saves.push(
-          adminFetch("/api/admin/content", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json; charset=utf-8" },
-            body: JSON.stringify({ doc: "copy", data: copy }),
-          }).then(() => {
-            setBaselineCopy(JSON.stringify(copy));
-            savedCount++;
-          }),
-        );
+        const parsed = copySchema.safeParse(copy);
+        if (!parsed.success) {
+          throw new Error(zodErrorMessage(parsed.error));
+        }
+        await adminFetch("/api/admin/content", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          body: JSON.stringify({ doc: "copy", data: parsed.data }),
+        });
+        setCopy(parsed.data);
+        setBaselineCopy(JSON.stringify(parsed.data));
+        savedCount += 1;
       }
 
       if (projectsDirty) {
-        saves.push(
-          adminFetch("/api/admin/content", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json; charset=utf-8" },
-            body: JSON.stringify({ doc: "projects", data: projects }),
-          }).then(() => {
-            setBaselineProjects(JSON.stringify(projects));
-            savedCount++;
-          }),
-        );
+        const parsed = projectsSchema.safeParse(projects);
+        if (!parsed.success) {
+          throw new Error(zodErrorMessage(parsed.error));
+        }
+        await adminFetch("/api/admin/content", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          body: JSON.stringify({ doc: "projects", data: parsed.data }),
+        });
+        setProjects(parsed.data);
+        setBaselineProjects(JSON.stringify(parsed.data));
+        savedCount += 1;
       }
 
-      await Promise.all(saves);
       pushToast(
         savedCount > 1 ? `${savedCount} بخش ذخیره شد.` : "ذخیره شد.",
         "success",
       );
     } catch (err) {
-      pushToast(errorMessage(err, "خطا در ذخیره."), "error");
+      const detail = errorMessage(err, "خطا در ذخیره.");
+      if (savedCount > 0) {
+        pushToast(`${savedCount} بخش ذخیره شد؛ بقیه ناموفق. ${detail}`, "error");
+      } else {
+        pushToast(detail, "error");
+      }
     } finally {
       setSaving(false);
     }
@@ -297,7 +320,7 @@ export function ContentPage() {
 
       {tab === "brand" ? <BrandTab site={site} onChange={setSite} /> : null}
       {tab === "landing" ? (
-        <LandingTab site={site} onChange={setSite} />
+        <LandingTab site={site} onChange={setSite} onUpload={upload} />
       ) : null}
       {tab === "nav" ? (
         <NavTab

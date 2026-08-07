@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -18,7 +18,6 @@ export default function AdminSettingsPage() {
   const { pushToast } = useToast();
   const { ask, dialog } = useAdminConfirm();
   const router = useRouter();
-  const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [includeLeads, setIncludeLeads] = useState(true);
 
@@ -70,7 +69,6 @@ export default function AdminSettingsPage() {
       pushToast(errorMessage(err, "بازیابی ناموفق بود."), "error");
     } finally {
       setBusy(false);
-      if (fileRef.current) fileRef.current.value = "";
     }
   }
 
@@ -148,7 +146,6 @@ export default function AdminSettingsPage() {
               disabled={busy}
               onFile={(file) => restoreFromFile(file)}
             />
-            <input ref={fileRef} type="file" className="hidden" />
           </div>
         </AdminCard>
 

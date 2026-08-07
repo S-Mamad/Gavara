@@ -63,6 +63,13 @@ export function AdminShell({ children }: { children: ReactNode }) {
         .then((r) => (r.ok ? r.json() : null))
         .then((json) => {
           if (!alive) return;
+          if (json && json.authenticated === false) {
+            const next = encodeURIComponent(
+              window.location.pathname + window.location.search,
+            );
+            window.location.href = `/admin/login?next=${next}`;
+            return;
+          }
           setNewLeads(json?.authenticated ? (json.newLeads ?? 0) : 0);
         })
         .catch(() => undefined);

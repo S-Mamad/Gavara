@@ -220,7 +220,7 @@ export function AdminStickySave({
 }) {
   if (!dirty) return null;
   return (
-    <div className="fixed inset-x-0 bottom-20 z-40 border-t border-white/10 bg-void/95 px-3 py-2.5 backdrop-blur-xl md:bottom-0 md:border-white/8">
+    <div className="fixed inset-x-0 bottom-20 z-40 border-t border-white/10 bg-void/95 px-3 py-2.5 pb-[max(0.65rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:bottom-0 md:border-white/8 md:pb-2.5">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 md:px-6">
         <p className="text-xs text-gold">تغییرات ذخیره‌نشده</p>
         <AdminButton type="button" size="sm" onClick={onSave} disabled={saving}>

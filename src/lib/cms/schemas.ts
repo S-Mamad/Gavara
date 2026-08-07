@@ -167,6 +167,7 @@ export const projectSchema = z.object({
   tech: z.array(z.string().max(64)).max(30).default([]),
   image: z.string().max(2000).optional(),
   previewUrl: optionalUrl.optional().or(z.literal("")),
+  preferLivePreview: z.boolean().optional(),
   metrics: z.array(z.string().max(120)).max(20).optional(),
   featured: z.boolean().optional(),
   year: z.string().max(40).optional(),

@@ -1,9 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import type { ProjectItem } from "@/types";
 import { cn } from "@/lib/utils";
-import { LiveSitePreview } from "@/components/ui/LiveSitePreview";
+import { ProjectCover } from "@/components/ui/ProjectCover";
 
 interface ProjectCardProps {
   project: ProjectItem;
@@ -15,7 +14,7 @@ interface ProjectCardProps {
 export function ProjectCard({
   project,
   featured = false,
-  priority = false,
+  priority: _priority = false,
   className,
 }: ProjectCardProps) {
   const isExternal = project.href.startsWith("http");
@@ -34,28 +33,11 @@ export function ProjectCard({
           featured ? "aspect-[16/9]" : "aspect-[4/3]",
         )}
       >
-        {project.previewUrl ? (
-          <LiveSitePreview src={project.previewUrl} title={project.title} />
-        ) : project.image ? (
-          <Image
-            src={project.image}
-            alt={project.title}
-            fill
-            priority={priority}
-            className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
-            sizes={featured ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
-          />
-        ) : (
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(135deg, ${project.gradient[0]}, ${project.gradient[1]})`,
-            }}
-          />
-        )}
-        {!project.previewUrl ? (
-          <div className="absolute inset-0 bg-gradient-to-t from-void/80 via-transparent to-transparent" />
-        ) : null}
+        <ProjectCover
+          project={project}
+          sizes={featured ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-void/80 via-transparent to-transparent" />
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-5 md:p-6">

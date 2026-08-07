@@ -12,7 +12,11 @@ import {
   AdminStickySave,
 } from "@/components/admin/ui";
 import { adminFetch, adminFetchJson, errorMessage } from "@/lib/admin/fetchJson";
-import { useBeforeUnloadGuard } from "@/hooks/useDirtyGuard";
+import { layoutSchema, zodErrorMessage } from "@/lib/cms/schemas";
+import {
+  useBeforeUnloadGuard,
+  useRouteLeaveGuard,
+} from "@/hooks/useDirtyGuard";
 
 type LayoutPayload = { data: LayoutConfig };
 
@@ -30,6 +34,7 @@ export default function AdminSectionsPage() {
   }, [layout, baseline]);
 
   useBeforeUnloadGuard(dirty);
+  useRouteLeaveGuard(dirty);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -79,14 +84,20 @@ export default function AdminSectionsPage() {
       pushToast("حداقل یک سکشن باید فعال باشد.", "error");
       return;
     }
+    const parsed = layoutSchema.safeParse(layout);
+    if (!parsed.success) {
+      pushToast(zodErrorMessage(parsed.error), "error");
+      return;
+    }
     setSaving(true);
     try {
       await adminFetch("/api/admin/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json; charset=utf-8" },
-        body: JSON.stringify({ doc: "layout", data: layout }),
+        body: JSON.stringify({ doc: "layout", data: parsed.data }),
       });
-      setBaseline(JSON.stringify(layout));
+      setLayout(parsed.data);
+      setBaseline(JSON.stringify(parsed.data));
       pushToast("چیدمان ذخیره شد.", "success");
     } catch (err) {
       pushToast(errorMessage(err, "خطا در ذخیره."), "error");

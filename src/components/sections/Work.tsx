@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react";
 import {
@@ -14,7 +13,7 @@ import type { ProjectItem } from "@/types";
 import { useCopy } from "@/hooks/useCopy";
 import { useProjects } from "@/context/CmsContext";
 import { Reveal } from "@/components/ui/Reveal";
-import { LiveSitePreview } from "@/components/ui/LiveSitePreview";
+import { ProjectCover } from "@/components/ui/ProjectCover";
 import { cn } from "@/lib/utils";
 
 export function Work() {
@@ -116,39 +115,15 @@ function CaseStudy({
         <motion.div
           className="absolute inset-0"
           style={
-            reduceMotion || project.previewUrl
+            reduceMotion || (project.previewUrl && !project.image)
               ? undefined
               : { scale: imageScale, opacity: imageOpacity }
           }
         >
-          {project.previewUrl ? (
-            <LiveSitePreview
-              src={project.previewUrl}
-              title={project.title}
-              fallbackGradient={project.gradient}
-            />
-          ) : project.image ? (
-            <Image
-              src={project.image}
-              alt={project.title}
-              fill
-              className="object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.04]"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-          ) : (
-            <div
-              className="absolute inset-0"
-              style={{
-                background: `linear-gradient(135deg, ${project.gradient[0]}, ${project.gradient[1]})`,
-              }}
-            />
-          )}
+          <ProjectCover project={project} />
         </motion.div>
-        {!project.previewUrl ? (
-          <div className="absolute inset-0 bg-gradient-to-t from-void/75 via-transparent to-transparent" />
-        ) : (
-          <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/5" />
-        )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-void/75 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/5" />
         {linkProps ? (
           <Link
             {...linkProps}
