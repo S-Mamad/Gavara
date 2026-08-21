@@ -16,7 +16,7 @@ import {
   useAdminConfirm,
 } from "@/components/admin/ui";
 import { AdminImageUpload } from "@/components/admin/AdminImageUpload";
-import { cn } from "@/lib/utils";
+import { cn, previewHost } from "@/lib/utils";
 import { CASE_STYLES, PROJECT_CATEGORIES } from "./types";
 
 type ProjectsTabProps = {
@@ -148,6 +148,43 @@ export function ProjectsTab({
       >
         {project && editingIndex >= 0 ? (
           <div className="grid gap-3">
+            <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0e]">
+              {project.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={project.image}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover object-top"
+                />
+              ) : (
+                <div
+                  className="absolute inset-0 flex items-end p-3"
+                  style={{
+                    background: `linear-gradient(145deg, ${project.gradient[0]}, ${project.gradient[1]})`,
+                  }}
+                >
+                  <p className="relative z-[1] text-[11px] text-foreground/70">
+                    هنوز کاور آپلود نشده. بدون تصویر، کارت نمونه‌کار خالی
+                    می‌ماند.
+                  </p>
+                </div>
+              )}
+              <div
+                className="pointer-events-none absolute inset-x-0 top-0 z-[2] flex h-9 items-center gap-2 border-b border-white/10 bg-[#0c0c10]/92 px-3 backdrop-blur-md"
+                aria-hidden
+              >
+                <span className="h-2 w-2 shrink-0 rounded-full bg-signal/75" />
+                <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500/55" />
+                <span className="h-2 w-2 shrink-0 rounded-full bg-accent/55" />
+                <span
+                  dir="ltr"
+                  className="ms-auto max-w-[65%] truncate rounded-md border border-white/8 bg-black/35 px-2 py-0.5 font-mono text-[9px] text-dim"
+                >
+                  {previewHost(project.previewUrl || project.href) || "preview"}
+                </span>
+              </div>
+            </div>
+
             <AdminImageUpload
               value={project.image}
               label="تصویر کاور (نمایش در سایت)"
@@ -241,8 +278,8 @@ export function ProjectsTab({
                 />
               </AdminField>
               <AdminField
-                label="آدرس پیش‌نمایش زنده"
-                hint="اختیاری؛ خیلی از سایت‌ها iframe را بلاک می‌کنند"
+                label="آدرس سایت زنده"
+                hint="برای لینک «مشاهده» و نوار مرورگر روی کارت. iframe استفاده نمی‌شود"
               >
                 <input
                   className={adminInputClass}
@@ -370,15 +407,6 @@ export function ProjectsTab({
                 checked={!!project.comingSoon}
                 onChange={(checked) =>
                   updateProject(editingIndex, { comingSoon: checked })
-                }
-              />
-              <AdminCheckbox
-                label="اولویت پیش‌نمایش زنده (iframe)"
-                checked={!!project.preferLivePreview}
-                onChange={(checked) =>
-                  updateProject(editingIndex, {
-                    preferLivePreview: checked || undefined,
-                  })
                 }
               />
             </div>

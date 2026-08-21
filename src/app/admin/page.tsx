@@ -55,9 +55,14 @@ export default function AdminDashboardPage() {
         title="داشبورد"
         description="وضعیت سریع پیام‌ها و محتوا."
         actions={
-          <AdminLinkButton href="/admin/content" variant="outline" size="sm">
-            ویرایش محتوا
-          </AdminLinkButton>
+          <>
+            <AdminLinkButton href="/" variant="outline" size="sm">
+              پیش‌نمایش سایت
+            </AdminLinkButton>
+            <AdminLinkButton href="/admin/content" variant="outline" size="sm">
+              ویرایش محتوا
+            </AdminLinkButton>
+          </>
         }
       />
 

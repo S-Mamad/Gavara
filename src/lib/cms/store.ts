@@ -123,8 +123,28 @@ export async function setSite(data: SiteConfig): Promise<void> {
   await writeJsonFile("site", data);
 }
 
+function withProjectCovers(projects: ProjectItem[]): ProjectItem[] {
+  const seedById = new Map(
+    (fallbackProjects as ProjectItem[]).map((p) => [p.id, p]),
+  );
+  return projects.map((project) => {
+    const seed = seedById.get(project.id);
+    const image = project.image || seed?.image;
+    if (image === project.image && !project.preferLivePreview) return project;
+    return {
+      ...project,
+      ...(image ? { image } : {}),
+      preferLivePreview: undefined,
+    };
+  });
+}
+
 export async function getProjects(): Promise<ProjectItem[]> {
-  return readJsonFile("projects", fallbackProjects as ProjectItem[]);
+  const projects = await readJsonFile(
+    "projects",
+    fallbackProjects as ProjectItem[],
+  );
+  return withProjectCovers(projects);
 }
 
 export async function setProjects(data: ProjectItem[]): Promise<void> {
@@ -244,11 +264,13 @@ export async function ensureCmsSeeded(): Promise<void> {
         );
         let changed = false;
         const next = current.map((p) => {
-          if (p.image) return p;
           const seedImage = seedById.get(p.id)?.image;
-          if (!seedImage) return p;
+          const image = p.image || seedImage;
+          const dropLive = p.preferLivePreview;
+          if (image === p.image && !dropLive) return p;
           changed = true;
-          return { ...p, image: seedImage };
+          const { preferLivePreview: _drop, ...rest } = p;
+          return image ? { ...rest, image } : rest;
         });
         if (changed) await writeJsonFile("projects", next);
       } catch {

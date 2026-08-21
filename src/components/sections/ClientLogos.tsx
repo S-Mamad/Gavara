@@ -1,14 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import site from "@/data/site.json";
-import type { SiteConfig } from "@/types";
+import { CmsImage } from "@/components/ui/CmsImage";
 import { Reveal } from "@/components/ui/Reveal";
-
-const data = site as SiteConfig;
+import { useSite } from "@/context/CmsContext";
 
 export function ClientLogos() {
+  const data = useSite();
   if (!data.clients?.length) return null;
 
   return (
@@ -26,7 +24,7 @@ export function ClientLogos() {
         <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 sm:gap-x-12 md:gap-x-14">
           {data.clients.map((client, index) => {
             const logo = client.logo ? (
-              <Image
+              <CmsImage
                 src={client.logo}
                 alt=""
                 width={140}
@@ -34,11 +32,13 @@ export function ClientLogos() {
                 className="h-7 w-auto opacity-50 transition-opacity duration-300 group-hover:opacity-95 sm:h-8"
               />
             ) : (
-              <span className="font-display text-sm text-muted">{client.name}</span>
+              <span className="font-display text-sm text-muted">
+                {client.name}
+              </span>
             );
 
             return (
-              <li key={client.name}>
+              <li key={`${client.name}-${index}`}>
                 <Reveal delay={index * 0.04}>
                   {client.href ? (
                     <Link

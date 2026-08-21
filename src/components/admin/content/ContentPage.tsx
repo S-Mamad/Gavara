@@ -6,6 +6,7 @@ import type { ProjectItem, SiteConfig } from "@/types";
 import { useToast } from "@/components/ui/Toast";
 import {
   AdminButton,
+  AdminDrawer,
   AdminErrorState,
   AdminPageHeader,
   AdminStickySave,
@@ -100,6 +101,7 @@ export function ContentPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -166,7 +168,7 @@ export function ContentPage() {
   }
 
   function openPreview() {
-    window.open(`/?t=${Date.now()}`, "_blank", "noopener,noreferrer");
+    setPreviewOpen(true);
   }
 
   async function upload(file: File): Promise<string | null> {
@@ -301,6 +303,15 @@ export function ContentPage() {
             <AdminButton type="button" variant="outline" onClick={openPreview}>
               پیش‌نمایش
             </AdminButton>
+            <AdminButton
+              type="button"
+              variant="ghost"
+              onClick={() =>
+                window.open(`/?t=${Date.now()}`, "_blank", "noopener,noreferrer")
+              }
+            >
+              تب جدید
+            </AdminButton>
           </>
         }
       />
@@ -346,6 +357,26 @@ export function ContentPage() {
       ) : null}
 
       <AdminStickySave dirty={dirty} saving={saving} onSave={saveAll} />
+
+      <AdminDrawer
+        open={previewOpen}
+        title="پیش‌نمایش سایت"
+        size="xl"
+        onClose={() => setPreviewOpen(false)}
+      >
+        <p className="mb-3 text-[11px] leading-5 text-dim">
+          {dirty
+            ? "تغییرات ذخیره‌نشده در این پیش‌نمایش دیده نمی‌شوند. اول ذخیره کن."
+            : "نسخهٔ فعلی ذخیره‌شده روی سایت."}
+        </p>
+        <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40">
+          <iframe
+            title="پیش‌نمایش سایت"
+            src={`/?preview=${Date.now()}`}
+            className="h-[min(78vh,720px)] w-full bg-void"
+          />
+        </div>
+      </AdminDrawer>
     </div>
   );
 }

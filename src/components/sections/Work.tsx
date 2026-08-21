@@ -108,22 +108,20 @@ function CaseStudy({
     >
       <div
         className={cn(
-          "relative aspect-[16/10] overflow-hidden rounded-[calc(1rem-2px)] sm:rounded-[calc(1.75rem-0.375rem)] lg:min-h-[300px] lg:aspect-[5/4]",
+          "relative aspect-[16/10] overflow-hidden rounded-[calc(1rem-2px)] sm:rounded-[calc(1.75rem-0.375rem)] lg:min-h-[280px] lg:aspect-[16/10]",
           isLuxury ? "bg-[#1a0f05]" : "bg-[#0a0a0e]",
         )}
       >
         <motion.div
-          className="absolute inset-0"
+          className="absolute inset-0 overflow-hidden"
           style={
-            reduceMotion || (project.previewUrl && !project.image)
+            reduceMotion
               ? undefined
               : { scale: imageScale, opacity: imageOpacity }
           }
         >
           <ProjectCover project={project} />
         </motion.div>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-void/75 via-transparent to-transparent" />
-        <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/5" />
         {linkProps ? (
           <Link
             {...linkProps}

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CmsImage } from "@/components/ui/CmsImage";
 import {
   motion,
   useReducedMotion,
@@ -38,7 +38,7 @@ export function HeroShowcase() {
       <motion.div style={reduceMotion ? undefined : { y }}>
         <BrowserFrame label="حاجی‌عسل" className="relative">
           <div className="relative aspect-[16/10] w-full">
-            <Image
+            <CmsImage
               src="/portfolio/hero-showcase.webp"
               alt="پیش‌نمایش فروشگاه حاجی عسل، پروژه راکسین‌شاپ"
               fill

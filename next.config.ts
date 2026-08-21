@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     root: path.resolve(__dirname),
   },
   images: {
+    // cPanel/standalone cannot reliably run the optimizer (sharp).
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",

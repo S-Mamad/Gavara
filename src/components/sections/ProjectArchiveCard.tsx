@@ -37,15 +37,12 @@ export function ProjectArchiveCard({
           isInfra && "hover:border-accent/30",
         )}
       >
-        <div
-          className="relative aspect-[16/10] overflow-hidden bg-[#0a0a0e]"
-        >
+        <div className="relative aspect-[16/10] overflow-hidden bg-[#0a0a0e]">
           <ProjectCover
             project={project}
             sizes="(max-width: 768px) 100vw, 33vw"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-void via-transparent to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] flex items-end justify-between gap-3 bg-gradient-to-t from-black/55 to-transparent p-4">
             <span className="label-mono text-[10px] text-foreground/80">
               {project.tag}
             </span>

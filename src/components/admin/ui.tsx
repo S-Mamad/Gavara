@@ -515,12 +515,14 @@ export function AdminDrawer({
   onClose,
   children,
   footer,
+  size = "md",
 }: {
   open: boolean;
   title: string;
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
+  size?: "md" | "xl";
 }) {
   if (!open) return null;
   return (
@@ -531,7 +533,12 @@ export function AdminDrawer({
         aria-label="بستن"
         onClick={onClose}
       />
-      <aside className="relative z-[1] flex h-full w-full max-w-md flex-col border-s border-white/10 bg-void shadow-2xl">
+      <aside
+        className={cn(
+          "relative z-[1] flex h-full w-full flex-col border-s border-white/10 bg-void shadow-2xl",
+          size === "xl" ? "max-w-4xl" : "max-w-md",
+        )}
+      >
         <div className="flex items-center justify-between gap-3 border-b border-white/8 px-4 py-3">
           <h2 className="font-display text-lg text-foreground">{title}</h2>
           <AdminButton type="button" variant="ghost" size="sm" onClick={onClose}>

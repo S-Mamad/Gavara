@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { CmsImage } from "@/components/ui/CmsImage";
 import { cn } from "@/lib/utils";
 
 type BrandLockupVariant = "hero" | "panel" | "nav";
@@ -54,7 +54,7 @@ export function BrandLockup({
       )}
     >
       <div className={cn("relative z-[1]", sizes.image)}>
-        <Image
+        <CmsImage
           src="/brand/raxinshop-logo.png"
           alt="Raxin Shop"
           fill

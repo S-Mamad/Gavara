@@ -1,7 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+
+type MediaItem = {
+  name: string;
+  url: string;
+};
 
 type AdminImageUploadProps = {
   value?: string;
@@ -25,6 +30,29 @@ export function AdminImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [library, setLibrary] = useState<MediaItem[] | null>(null);
+  const [libraryError, setLibraryError] = useState("");
+
+  useEffect(() => {
+    if (!libraryOpen || library) return;
+    let alive = true;
+    fetch("/api/admin/media")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("fail"))))
+      .then((json: { items?: MediaItem[] }) => {
+        if (!alive) return;
+        setLibrary(json.items ?? []);
+        setLibraryError("");
+      })
+      .catch(() => {
+        if (!alive) return;
+        setLibrary([]);
+        setLibraryError("رسانه بارگذاری نشد.");
+      });
+    return () => {
+      alive = false;
+    };
+  }, [libraryOpen, library]);
 
   async function handleFile(file: File | undefined | null) {
     if (!file || disabled || busy) return;
@@ -62,9 +90,12 @@ export function AdminImageUpload({
           <img
             src={value}
             alt=""
-            className="aspect-video w-full object-cover"
+            className="aspect-video w-full object-cover object-top"
           />
-          <p className="truncate border-t border-white/8 px-3 py-1.5 font-mono text-[10px] text-dim" dir="ltr">
+          <p
+            className="truncate border-t border-white/8 px-3 py-1.5 font-mono text-[10px] text-dim"
+            dir="ltr"
+          >
             {value}
           </p>
         </div>
@@ -91,14 +122,24 @@ export function AdminImageUpload({
           {busy ? "در حال آپلود..." : "فایل را اینجا رها کن یا انتخاب کن"}
         </p>
         <p className="mt-1 text-[11px] text-dim">{hint}</p>
-        <button
-          type="button"
-          className="mt-3 rounded-full bg-accent px-3.5 py-1.5 text-xs font-medium text-void disabled:opacity-50"
-          disabled={disabled || busy}
-          onClick={() => inputRef.current?.click()}
-        >
-          {busy ? "صبر کن..." : "انتخاب فایل"}
-        </button>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+          <button
+            type="button"
+            className="rounded-full bg-accent px-3.5 py-1.5 text-xs font-medium text-void disabled:opacity-50"
+            disabled={disabled || busy}
+            onClick={() => inputRef.current?.click()}
+          >
+            {busy ? "صبر کن..." : "انتخاب فایل"}
+          </button>
+          <button
+            type="button"
+            className="rounded-full border border-white/15 px-3.5 py-1.5 text-xs text-muted hover:text-foreground disabled:opacity-50"
+            disabled={disabled || busy}
+            onClick={() => setLibraryOpen((v) => !v)}
+          >
+            از رسانه
+          </button>
+        </div>
         <input
           ref={inputRef}
           type="file"
@@ -108,6 +149,48 @@ export function AdminImageUpload({
           onChange={(e) => void handleFile(e.target.files?.[0])}
         />
       </div>
+
+      {libraryOpen ? (
+        <div className="rounded-xl border border-white/10 bg-black/20 p-2">
+          {libraryError ? (
+            <p className="px-2 py-3 text-center text-xs text-signal">
+              {libraryError}
+            </p>
+          ) : library === null ? (
+            <p className="px-2 py-3 text-center text-xs text-dim">
+              در حال بارگذاری رسانه...
+            </p>
+          ) : library.length === 0 ? (
+            <p className="px-2 py-3 text-center text-xs text-dim">
+              هنوز فایلی در رسانه نیست. اول آپلود کن.
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-1.5">
+              {library.map((item) => (
+                <button
+                  key={item.url}
+                  type="button"
+                  className={cn(
+                    "overflow-hidden rounded-lg border border-white/10 bg-black/30",
+                    value === item.url && "ring-2 ring-accent",
+                  )}
+                  onClick={() => {
+                    onChange(item.url);
+                    setLibraryOpen(false);
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.url}
+                    alt=""
+                    className="aspect-square w-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

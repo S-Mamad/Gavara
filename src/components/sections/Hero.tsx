@@ -92,6 +92,19 @@ export function Hero() {
               {copy.hero.secondaryCta}
             </Link>
           </div>
+
+          {site.heroStats?.length ? (
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 md:justify-start">
+              {site.heroStats.map((stat) => (
+                <div key={stat.label}>
+                  <p className="font-display text-xl text-foreground sm:text-2xl">
+                    {stat.value}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-dim">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </motion.div>
 
         <div className="relative w-full min-w-0">

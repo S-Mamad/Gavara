@@ -98,7 +98,7 @@ export function HeroCodeStage() {
               className="hidden truncate rounded-md px-2 py-0.5 text-[10px] text-dim sm:inline"
               dir="ltr"
             >
-              TypeScript
+              Everything is summarized in AI
             </span>
           </div>
           <span
