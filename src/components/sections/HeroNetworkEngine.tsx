@@ -22,7 +22,8 @@ function hash(i: number) {
   return x - Math.floor(x);
 }
 
-function makeSpriteTexture(THREE: typeof import("three")) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function makeSpriteTexture(THREE: any) {
   const size = 64;
   const canvas = document.createElement("canvas");
   canvas.width = size;
