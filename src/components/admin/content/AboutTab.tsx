@@ -151,21 +151,32 @@ export function AboutTab({ site, onChange, onUpload }: AboutTabProps) {
               onChange={(e) => updateMember({ bio: e.target.value })}
             />
           </AdminField>
-          <AdminField label="موقعیت عکس" hint="مثال: 50% 16%">
-            <input
-              className={adminInputClass}
-              dir="ltr"
-              value={member.imagePosition ?? ""}
-              onChange={(e) => updateMember({ imagePosition: e.target.value })}
-            />
-          </AdminField>
           <AdminImageUpload
             value={member.image || undefined}
             label="عکس پروفایل"
+            hint="بعد از آپلود، نقطهٔ فوکوس را بکش تا کادر درست شود"
+            aspectClass="aspect-[4/5]"
+            objectPosition={member.imagePosition ?? "50% 18%"}
+            onObjectPositionChange={(position) =>
+              updateMember({ imagePosition: position })
+            }
             onUpload={onUpload}
             onChange={(url) => updateMember({ image: url ?? "" })}
             onUploaded={() => pushToast("تصویر آماده است؛ ذخیره را بزن.")}
           />
+          <AdminField label="موقعیت دقیق (اختیاری)" hint="با درگ بالا هم تنظیم می‌شود">
+            <input
+              className={adminInputClass}
+              dir="ltr"
+              placeholder="50% 18%"
+              value={member.imagePosition ?? ""}
+              onChange={(e) =>
+                updateMember({
+                  imagePosition: e.target.value || undefined,
+                })
+              }
+            />
+          </AdminField>
           <AdminField label="آدرس تصویر (دستی)">
             <input
               className={adminInputClass}

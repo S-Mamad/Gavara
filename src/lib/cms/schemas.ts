@@ -166,6 +166,7 @@ export const projectSchema = z.object({
   category: z.enum(["web", "saas", "api", "oss"]),
   tech: z.array(z.string().max(64)).max(30).default([]),
   image: z.string().max(2000).optional(),
+  imagePosition: z.string().max(80).optional(),
   previewUrl: optionalUrl.optional().or(z.literal("")),
   preferLivePreview: z.boolean().optional(),
   metrics: z.array(z.string().max(120)).max(20).optional(),

@@ -48,7 +48,7 @@ export default async function Home() {
       />
       <ScrollProgress />
       <Header />
-      <main id="main" className="w-full max-w-full overflow-x-hidden">
+      <main id="main" className="w-full max-w-full overflow-x-hidden bg-void">
         <HomeSections />
       </main>
       <Footer />

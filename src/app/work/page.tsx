@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "کارها و خدمات",
   description:
-    "نمونه‌کارها و خدمات راکسین‌شاپ؛ طراحی سایت، تلگرام، پوستر، برند و محصول دیجیتال.",
+    "نمونه‌کارها و خدمات راکسین؛ طراحی سایت، تلگرام، پوستر، برند و محصول دیجیتال.",
   alternates: {
     canonical: "/work",
   },

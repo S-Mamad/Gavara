@@ -8,11 +8,26 @@ type MediaItem = {
   url: string;
 };
 
+function parsePosition(value?: string): { x: number; y: number } {
+  if (!value) return { x: 50, y: 20 };
+  const parts = value.trim().split(/\s+/);
+  const x = Number.parseFloat(parts[0] ?? "50");
+  const y = Number.parseFloat(parts[1] ?? "20");
+  return {
+    x: Number.isFinite(x) ? Math.min(100, Math.max(0, x)) : 50,
+    y: Number.isFinite(y) ? Math.min(100, Math.max(0, y)) : 20,
+  };
+}
+
 type AdminImageUploadProps = {
   value?: string;
   label?: string;
   hint?: string;
   disabled?: boolean;
+  /** CSS object-position, e.g. "50% 20%" */
+  objectPosition?: string;
+  onObjectPositionChange?: (position: string) => void;
+  aspectClass?: string;
   onUpload: (file: File) => Promise<string | null>;
   onChange: (url: string | undefined) => void;
   onUploaded?: (url: string) => void;
@@ -23,16 +38,23 @@ export function AdminImageUpload({
   label = "آپلود تصویر",
   hint = "png، jpg، webp یا gif · حداکثر ۸ مگابایت",
   disabled,
+  objectPosition,
+  onObjectPositionChange,
+  aspectClass = "aspect-video",
   onUpload,
   onChange,
   onUploaded,
 }: AdminImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [library, setLibrary] = useState<MediaItem[] | null>(null);
   const [libraryError, setLibraryError] = useState("");
+  const pos = parsePosition(objectPosition);
+  const canPosition = Boolean(value && onObjectPositionChange);
 
   useEffect(() => {
     if (!libraryOpen || library) return;
@@ -53,6 +75,33 @@ export function AdminImageUpload({
       alive = false;
     };
   }, [libraryOpen, library]);
+
+  useEffect(() => {
+    if (!canPosition) return;
+
+    function onMove(e: PointerEvent) {
+      if (!dragging.current || !frameRef.current || !onObjectPositionChange)
+        return;
+      const rect = frameRef.current.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const x = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
+      const y = Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100));
+      onObjectPositionChange(`${Math.round(x)}% ${Math.round(y)}%`);
+    }
+
+    function onUp() {
+      dragging.current = false;
+    }
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+  }, [canPosition, onObjectPositionChange]);
 
   async function handleFile(file: File | undefined | null) {
     if (!file || disabled || busy) return;
@@ -85,13 +134,51 @@ export function AdminImageUpload({
       </div>
 
       {value ? (
-        <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/30">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={value}
-            alt=""
-            className="aspect-video w-full object-cover object-top"
-          />
+        <div className="overflow-hidden rounded-xl border border-white/10 bg-black/30">
+          <div
+            ref={frameRef}
+            className={cn(
+              "relative w-full overflow-hidden bg-black/40",
+              aspectClass,
+              canPosition && "cursor-grab touch-none active:cursor-grabbing",
+            )}
+            onPointerDown={(e) => {
+              if (!canPosition || disabled) return;
+              e.preventDefault();
+              dragging.current = true;
+              const rect = frameRef.current?.getBoundingClientRect();
+              if (!rect || !onObjectPositionChange) return;
+              const x = Math.min(
+                100,
+                Math.max(0, ((e.clientX - rect.left) / rect.width) * 100),
+              );
+              const y = Math.min(
+                100,
+                Math.max(0, ((e.clientY - rect.top) / rect.height) * 100),
+              );
+              onObjectPositionChange(`${Math.round(x)}% ${Math.round(y)}%`);
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={value}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: objectPosition ?? "50% 20%" }}
+              draggable={false}
+            />
+            {canPosition ? (
+              <>
+                <div
+                  className="pointer-events-none absolute z-[2] h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-accent/80 shadow-[0_0_0_1px_rgba(0,0,0,0.45)]"
+                  style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                />
+                <p className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] bg-gradient-to-t from-black/75 to-transparent px-3 py-2 text-center text-[10px] text-foreground/85">
+                  بکش تا نقطهٔ فوکوس عوض شود · {objectPosition ?? "50% 20%"}
+                </p>
+              </>
+            ) : null}
+          </div>
           <p
             className="truncate border-t border-white/8 px-3 py-1.5 font-mono text-[10px] text-dim"
             dir="ltr"

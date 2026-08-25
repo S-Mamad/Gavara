@@ -13,7 +13,7 @@ const siteName = `${data.brand.name}${data.brand.suffix}`;
 const vazirmatn = Vazirmatn({
   variable: "--font-vazirmatn",
   subsets: ["arabic", "latin"],
-  weight: ["400", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
     "Next.js",
     "React",
     "طراحی محصول",
-    "راکسین‌شاپ",
-    "تهران",
+    "راکسین",
+    "یزد",
   ],
   alternates: {
     canonical: "/",
@@ -83,7 +83,7 @@ export default function RootLayout({
       dir="rtl"
       className={`${vazirmatn.variable} ${jetbrains.variable} h-full antialiased`}
     >
-      <body className="relative min-h-full bg-transparent text-foreground">
+      <body className="relative min-h-full bg-void font-sans text-foreground">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:rounded focus:border focus:border-accent focus:bg-void focus:px-4 focus:py-2 focus:text-sm focus:text-foreground"

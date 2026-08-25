@@ -12,18 +12,17 @@ const FALLBACK_COPY: EditableCopy = {
   hero: {
     title: "از ایده تا محصول زنده",
     highlight: "با کیفیت پروداکشن",
-    description:
-      "سایت، فروشگاه و محصول دیجیتال | ربات تلگرام، پنل و اتوماسیون | دیزاین، کد و لانچ در یک تیم",
+    description: "",
     primaryCta: "شروع پروژه",
     secondaryCta: "نمونه‌کارها",
   },
   bento: {
-    eyebrow: "",
+    eyebrow: "خدمات",
     title: "چه می‌سازیم",
     description: "چهار حوزه اصلی؛ بدون وعده اضافه.",
   },
   work: {
-    eyebrow: "",
+    eyebrow: "نمونه",
     title: "نمونه‌کار واقعی",
     description:
       "از پلتفرم سلامت تا فروشگاه لوکس؛ خروجی قابل لمس، نه دموی تزئینی.",
@@ -31,12 +30,12 @@ const FALLBACK_COPY: EditableCopy = {
   about: {
     eyebrow: "درباره",
     title: "محمد محمدی",
-    description: "فرانت‌اند، محصول و لانچ؛ خروجی واقعی از ایده تا پروداکشن.",
+    description: "فرانت‌اند، محصول و لانچ؛ از ایده تا پروداکشن.",
   },
   contact: {
-    eyebrow: "",
+    eyebrow: "تماس",
     title: "همکاری با ما",
-    description: "کوتاه بنویس؛ معمولاً همان روز جواب می‌دهیم.",
+    description: "ایده‌ات را کوتاه بنویس.",
   },
 };
 
@@ -130,11 +129,10 @@ function withProjectCovers(projects: ProjectItem[]): ProjectItem[] {
   return projects.map((project) => {
     const seed = seedById.get(project.id);
     const image = project.image || seed?.image;
-    if (image === project.image && !project.preferLivePreview) return project;
+    if (image === project.image) return project;
     return {
       ...project,
       ...(image ? { image } : {}),
-      preferLivePreview: undefined,
     };
   });
 }
@@ -252,8 +250,7 @@ export async function ensureCmsSeeded(): Promise<void> {
         }
       }
 
-      // Backfill cover images for known projects that only had previewUrl
-      // (iframes are often blocked on live hosts).
+      // Backfill cover images for known projects that only had previewUrl.
       try {
         const seedById = new Map(
           (fallbackProjects as ProjectItem[]).map((p) => [p.id, p]),
@@ -266,11 +263,9 @@ export async function ensureCmsSeeded(): Promise<void> {
         const next = current.map((p) => {
           const seedImage = seedById.get(p.id)?.image;
           const image = p.image || seedImage;
-          const dropLive = p.preferLivePreview;
-          if (image === p.image && !dropLive) return p;
+          if (image === p.image) return p;
           changed = true;
-          const { preferLivePreview: _drop, ...rest } = p;
-          return image ? { ...rest, image } : rest;
+          return image ? { ...p, image } : p;
         });
         if (changed) await writeJsonFile("projects", next);
       } catch {

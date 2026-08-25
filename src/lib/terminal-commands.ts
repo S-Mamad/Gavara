@@ -38,7 +38,7 @@ export function runTerminalCommand(input: string): TerminalResult {
   if (cmd === "whoami") {
     return {
       lines: [
-        "raxinshop — Tehran product studio",
+        "raxin — Tehran product studio",
         "Mohammad Mohammadi · frontend & product",
         "Amir Haji Abedi · brand & digital design",
         "Shipping production systems, not demos.",
@@ -64,7 +64,7 @@ export function runTerminalCommand(input: string): TerminalResult {
     return {
       lines: [
         "telegram  @Mamad3",
-        "channel   @RaxinShop",
+        "channel   کانال تلگرام",
         "email     Mohammadi@gmail.com",
       ],
     };

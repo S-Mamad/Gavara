@@ -11,16 +11,23 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const inputId = id ?? props.name;
 
     return (
-      <div className="flex flex-col gap-2">
-        <label htmlFor={inputId} className="text-[13px] text-muted">
+      <div className="group/field flex flex-col gap-2">
+        <label
+          htmlFor={inputId}
+          className="text-[12px] text-dim transition-colors group-focus-within/field:text-accent sm:text-[13px]"
+        >
           {label}
         </label>
         <textarea
           ref={ref}
           id={inputId}
           className={cn(
-            "min-h-[132px] resize-y rounded-xl border border-border/80 bg-void/60 px-4 py-3 text-sm leading-relaxed text-foreground transition-colors placeholder:text-dim/80 focus:border-accent/45 focus:outline-none focus:ring-2 focus:ring-accent/15",
-            error && "border-signal/50",
+            "min-h-[128px] resize-none rounded-2xl border border-accent/12 bg-gradient-to-b from-white/[0.04] to-transparent px-4 py-3.5 text-sm leading-relaxed text-foreground shadow-[inset_0_1px_0_rgba(225,224,204,0.04)] outline-none transition-all duration-300",
+            "placeholder:text-dim/55",
+            "hover:border-accent/22",
+            "focus:border-accent/45 focus:from-accent/[0.06] focus:shadow-[0_0_0_3px_rgba(222,219,200,0.08),inset_0_1px_0_rgba(225,224,204,0.06)]",
+            error &&
+              "border-signal/45 focus:border-signal/60 focus:shadow-[0_0_0_3px_rgba(232,93,93,0.12)]",
             className,
           )}
           {...props}

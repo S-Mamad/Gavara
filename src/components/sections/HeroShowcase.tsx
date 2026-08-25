@@ -40,7 +40,7 @@ export function HeroShowcase() {
           <div className="relative aspect-[16/10] w-full">
             <CmsImage
               src="/portfolio/hero-showcase.webp"
-              alt="پیش‌نمایش فروشگاه حاجی عسل، پروژه راکسین‌شاپ"
+              alt="پیش‌نمایش فروشگاه حاجی عسل، پروژه راکسین"
               fill
               priority
               className="object-cover object-top"

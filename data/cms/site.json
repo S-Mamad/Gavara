@@ -1,8 +1,8 @@
 {
   "brand": {
     "name": "راکسین",
-    "suffix": "‌شاپ",
-    "slug": "raxinshop",
+    "suffix": "",
+    "slug": "raxin",
     "version": "",
     "tagline": "استودیو توسعه یزد",
     "description": "طراحی، کد و لانچ محصولی که بعد از لانچ هم قابل نگهداری بماند.",
@@ -101,7 +101,7 @@
     },
     {
       "id": "channel",
-      "label": "@RaxinShop",
+      "label": "کانال تلگرام",
       "href": "https://t.me/RaxinShop"
     },
     {

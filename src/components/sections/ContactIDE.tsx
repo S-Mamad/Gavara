@@ -26,7 +26,7 @@ type FormData = z.infer<typeof schema>;
 function buildMailto(form: FormData) {
   const email = data.links.find((l) => l.id === "email");
   const to = email?.label ?? "Mohammadi@gmail.com";
-  const subject = encodeURIComponent(`[راکسین‌شاپ] پیام از ${form.name}`);
+  const subject = encodeURIComponent(`[راکسین] پیام از ${form.name}`);
   const body = encodeURIComponent(
     `نام: ${form.name}\nتماس: ${form.contact}\n\n${form.message}`,
   );

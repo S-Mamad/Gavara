@@ -45,7 +45,6 @@ export function ContextAwareProvider({ children }: { children: ReactNode }) {
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const [charging, setCharging] = useState(true);
   const [effectiveType, setEffectiveType] = useState<string | null>(null);
-  const [saveData, setSaveData] = useState(false);
 
   useEffect(() => {
     let battery: BatteryManagerLike | null = null;
@@ -76,7 +75,6 @@ export function ContextAwareProvider({ children }: { children: ReactNode }) {
     const syncNetwork = () => {
       if (!connection || cancelled) return;
       setEffectiveType(connection.effectiveType ?? null);
-      setSaveData(Boolean(connection.saveData));
     };
 
     if (connection) {
@@ -97,12 +95,10 @@ export function ContextAwareProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const lowBattery =
-    batteryLevel !== null && batteryLevel < 0.2 && !charging;
+    batteryLevel !== null && batteryLevel < 0.15 && !charging;
+  // Chrome اغلب 4G واقعی را هم "3g" گزارش می‌کند؛ فقط 2G واقعی کند حساب شود.
   const slowNetwork =
-    saveData ||
-    effectiveType === "slow-2g" ||
-    effectiveType === "2g" ||
-    effectiveType === "3g";
+    effectiveType === "slow-2g" || effectiveType === "2g";
 
   const heavyEffectsOff = forceReducedMotion || lowBattery || slowNetwork;
 

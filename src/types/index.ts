@@ -27,9 +27,14 @@ export interface ProjectItem {
   category: "web" | "saas" | "api" | "oss";
   tech: string[];
   image?: string;
+  /** CSS object-position for cover crop, e.g. "50% 20%" */
+  imagePosition?: string;
   /** Live site URL rendered as scaled iframe preview */
   previewUrl?: string;
-  /** When true, try live iframe before the cover image */
+  /**
+   * Prefer live iframe when previewUrl is set.
+   * Default is false (cover image). Set true only for sites that allow framing.
+   */
   preferLivePreview?: boolean;
   metrics?: string[];
   featured?: boolean;

@@ -20,7 +20,7 @@ const KB: { q: RegExp; a: string }[] = [
   },
   {
     q: /تیم|کی|who/i,
-    a: "راکسین‌شاپ را محمد محمدی می‌سازد: فرانت‌اند، محصول و لانچ.",
+    a: "راکسین را محمد محمدی می‌سازد: فرانت‌اند، محصول و لانچ.",
   },
 ];
 
@@ -39,7 +39,7 @@ export function FloatingAssistant() {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "bot",
-      text: "سلام. درباره رزومه و پروژه‌های راکسین‌شاپ بپرسید.",
+      text: "سلام. درباره رزومه و پروژه‌های راکسین بپرسید.",
     },
   ]);
   const endRef = useRef<HTMLDivElement>(null);

@@ -45,9 +45,9 @@ export function BrandLockup({
   const inner = (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-white/12 bg-[#0b0b0f]/90 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] backdrop-blur-md",
-        "before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_20%,rgba(0,180,255,0.16),transparent_45%),radial-gradient(circle_at_75%_70%,rgba(255,90,40,0.14),transparent_42%)]",
-        "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:ring-1 after:ring-inset after:ring-white/10",
+        "group relative overflow-hidden rounded-2xl border border-accent/15 bg-black/90 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] backdrop-blur-md",
+        "before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_20%,rgba(222,219,200,0.12),transparent_45%),radial-gradient(circle_at_75%_70%,rgba(222,219,200,0.06),transparent_42%)]",
+        "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:ring-1 after:ring-inset after:ring-accent/10",
         "transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.015]",
         sizes.wrap,
         className,
@@ -56,7 +56,7 @@ export function BrandLockup({
       <div className={cn("relative z-[1]", sizes.image)}>
         <CmsImage
           src="/brand/raxinshop-logo.png"
-          alt="Raxin Shop"
+          alt="راکسین"
           fill
           priority={sizes.priority}
           className={objectClass}
@@ -68,7 +68,7 @@ export function BrandLockup({
 
   if (href) {
     return (
-      <Link href={href} className="inline-flex shrink-0" aria-label="راکسین‌شاپ">
+      <Link href={href} className="inline-flex shrink-0" aria-label="راکسین">
         {inner}
       </Link>
     );

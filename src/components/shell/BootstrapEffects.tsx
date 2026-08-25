@@ -39,19 +39,29 @@ export function BootstrapEffects() {
 
   useEffect(() => {
     if (onAdmin || !hydrated) return;
-    if (lowBattery && !batteryTold.current) {
-      batteryTold.current = true;
-      pushToast(copy.lowBattery);
+    if (!slowNetwork) return;
+    try {
+      if (sessionStorage.getItem("raxin.toast.slowNetwork")) return;
+      sessionStorage.setItem("raxin.toast.slowNetwork", "1");
+    } catch {
+      if (networkTold.current) return;
+      networkTold.current = true;
     }
-  }, [onAdmin, hydrated, lowBattery, copy.lowBattery, pushToast]);
+    pushToast(copy.slowNetwork);
+  }, [onAdmin, hydrated, slowNetwork, copy.slowNetwork, pushToast]);
 
   useEffect(() => {
     if (onAdmin || !hydrated) return;
-    if (slowNetwork && !networkTold.current) {
-      networkTold.current = true;
-      pushToast(copy.slowNetwork);
+    if (!lowBattery) return;
+    try {
+      if (sessionStorage.getItem("raxin.toast.lowBattery")) return;
+      sessionStorage.setItem("raxin.toast.lowBattery", "1");
+    } catch {
+      if (batteryTold.current) return;
+      batteryTold.current = true;
     }
-  }, [onAdmin, hydrated, slowNetwork, copy.slowNetwork, pushToast]);
+    pushToast(copy.lowBattery);
+  }, [onAdmin, hydrated, lowBattery, copy.lowBattery, pushToast]);
 
   return null;
 }

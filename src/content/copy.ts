@@ -59,18 +59,17 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
     hero: {
       title: "از ایده تا محصول زنده",
       highlight: "با کیفیت پروداکشن",
-      description:
-        "طراحی، فرانت و زیرساخت؛ خروجی واقعی که بعد از لانچ هم قابل نگهداری بماند.",
+      description: "",
       primaryCta: "شروع پروژه",
       secondaryCta: "نمونه‌کارها",
     },
     bento: {
-      eyebrow: "",
+      eyebrow: "خدمات",
       title: "چه می‌سازیم",
       description: "چهار حوزه اصلی؛ بدون وعده اضافه.",
     },
     work: {
-      eyebrow: "",
+      eyebrow: "نمونه",
       title: "نمونه‌کار واقعی",
       description: "از پلتفرم سلامت تا فروشگاه لوکس؛ خروجی قابل لمس، نه دموی تزئینی.",
     },
@@ -82,12 +81,12 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
     about: {
       eyebrow: "درباره",
       title: "محمد محمدی",
-      description: "فرانت‌اند، محصول و لانچ؛ خروجی واقعی از ایده تا پروداکشن.",
+      description: "فرانت‌اند، محصول و لانچ؛ از ایده تا پروداکشن.",
     },
     contact: {
-      eyebrow: "",
+      eyebrow: "تماس",
       title: "همکاری با ما",
-      description: "کوتاه بنویس؛ معمولاً همان روز جواب می‌دهیم.",
+      description: "ایده‌ات را کوتاه بنویس.",
     },
     ...sharedExtras,
     modeLabels: { dev: "فنی", executive: "مدیریتی" },
@@ -105,12 +104,12 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
       secondaryCta: "نتایج پروژه‌ها",
     },
     bento: {
-      eyebrow: "",
+      eyebrow: "خدمات",
       title: "چه می‌سازیم",
       description: "چهار حوزه اصلی؛ بدون وعده اضافه.",
     },
     work: {
-      eyebrow: "",
+      eyebrow: "نمونه",
       title: "ارزش تجاری پروژه‌ها",
       description: "پایداری عملیاتی، تجربهٔ خرید لوکس، و هویت آمادهٔ بازار.",
     },
@@ -125,9 +124,9 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
       description: "مسئولیت کامل از ایده تا لانچ، بدون لایه‌های اضافه.",
     },
     contact: {
-      eyebrow: "",
+      eyebrow: "تماس",
       title: "همکاری با ما",
-      description: "کوتاه بنویس؛ معمولاً همان روز جواب می‌دهیم.",
+      description: "ایده‌ات را کوتاه بنویس.",
     },
     ...sharedExtras,
     modeLabels: { dev: "فنی", executive: "مدیریتی" },

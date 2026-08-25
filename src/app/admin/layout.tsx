@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 
 export const metadata = {
-  title: "ادمین | راکسین‌شاپ",
+  title: "ادمین | راکسین",
   robots: { index: false, follow: false },
 };
 

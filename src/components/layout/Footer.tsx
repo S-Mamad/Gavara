@@ -47,7 +47,7 @@ export function Footer() {
   const customNav = data.footerNav?.length ? data.footerNav : null;
 
   return (
-    <footer className="border-t border-border/80">
+    <footer className="hidden border-t border-border/80 bg-void md:block">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-7 sm:px-6 sm:py-8 md:flex-row md:items-center md:justify-between md:gap-8 md:px-10">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-5">
           <BrandLockup

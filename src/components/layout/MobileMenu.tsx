@@ -35,7 +35,7 @@ export function MobileMenu() {
   }, [open]);
 
   return (
-    <div className="lg:hidden">
+    <div className="md:hidden">
       <button
         ref={triggerRef}
         type="button"
@@ -43,7 +43,7 @@ export function MobileMenu() {
         aria-expanded={open}
         aria-controls="mobile-menu-panel"
         onClick={() => setOpen((v) => !v)}
-        className="relative z-[61] flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]"
+        className="relative z-[61] flex h-10 w-10 items-center justify-center rounded-full border border-accent/20 bg-black/40"
       >
         <span
           className={cn(

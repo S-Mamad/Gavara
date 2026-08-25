@@ -42,7 +42,7 @@ const projectTypes = [
 function buildMailtoUrl(form: FormData) {
   const email = data.links.find((l) => l.id === "email");
   const to = email?.label ?? "Mohammadi@gmail.com";
-  const subject = encodeURIComponent(`[راکسین‌شاپ] ${form.projectType}`);
+  const subject = encodeURIComponent(`[راکسین] ${form.projectType}`);
   const body = encodeURIComponent(
     `نام: ${form.name}\nتماس: ${form.contact}\nنوع پروژه: ${form.projectType}\n\n${form.message}`,
   );

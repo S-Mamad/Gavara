@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, GithubLogo, TelegramLogo } from "@phosphor-icons/react";
+import {
+  ArrowLeft,
+  EnvelopeSimple,
+  GithubLogo,
+  TelegramLogo,
+} from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,7 +19,7 @@ import { useSite } from "@/context/CmsContext";
 
 const schema = z.object({
   name: z.string().min(2, "نام الزامی است"),
-  contact: z.string().min(3, "تلگرام یا موبایل الزامی است"),
+  contact: z.string().min(3, "شماره موبایل الزامی است"),
   message: z.string().min(10, "توضیح باید حداقل ۱۰ کاراکتر باشد"),
   website: z.string().max(0).optional(),
 });
@@ -23,7 +28,7 @@ type FormData = z.infer<typeof schema>;
 
 const chips = [
   { value: "mvp", label: "محصول جدید" },
-  { value: "frontend", label: "فرانت" },
+  { value: "frontend", label: "فرانت‌اند" },
   { value: "infra", label: "زیرساخت" },
   { value: "shop", label: "فروشگاه" },
 ];
@@ -74,170 +79,157 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="relative overflow-hidden py-20 sm:py-28 md:py-36">
-      <div className="relative mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
-        <Reveal className="text-center">
+    <section
+      id="contact"
+      className="relative overflow-hidden bg-void px-4 py-16 sm:px-6 sm:py-20 md:px-8 md:py-28"
+    >
+      <div className="relative mx-auto grid max-w-6xl items-center gap-10 sm:gap-12 md:grid-cols-2 md:gap-12 lg:gap-16">
+        <Reveal className="flex flex-col justify-center text-center md:pe-2 md:text-start">
           {copy.contact.eyebrow ? (
-            <p className="mb-3 text-[12px] tracking-wide text-dim sm:text-[13px]">
+            <p className="mb-3 text-[12px] text-dim sm:text-[13px]">
               {copy.contact.eyebrow}
             </p>
           ) : null}
-          <h2 className="font-display text-[clamp(1.65rem,5vw,2.75rem)] leading-[1.15] text-foreground">
+          <h2 className="font-display text-[clamp(1.85rem,4.5vw,3rem)] leading-[1.12] text-foreground">
             {copy.contact.title}
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-[14px] leading-[1.85] text-muted sm:mt-4 sm:text-[15px]">
-            {copy.contact.description}
-          </p>
+          {copy.contact.description ? (
+            <p className="mx-auto mt-4 max-w-sm text-[15px] leading-[1.85] text-muted md:mx-0">
+              {copy.contact.description}
+            </p>
+          ) : null}
+
+          <div className="mt-8 flex flex-col items-center gap-4 md:items-start">
+            {telegram ? (
+              <a
+                href={telegram.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 rounded-full bg-accent py-1.5 pe-1.5 ps-5 text-sm font-medium text-black transition-[gap] duration-300 hover:gap-3 hover:bg-accent-bright"
+              >
+                <TelegramLogo className="h-5 w-5" weight="fill" />
+                گفتگو در تلگرام
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black transition-transform duration-300 group-hover:scale-105 sm:h-10 sm:w-10">
+                  <ArrowLeft className="h-4 w-4 text-accent" weight="bold" />
+                </span>
+              </a>
+            ) : null}
+
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 md:justify-start">
+              {email ? (
+                <a
+                  href={email.href}
+                  className="inline-flex items-center gap-2 text-[13px] text-muted transition-colors hover:text-accent"
+                  dir="ltr"
+                >
+                  <EnvelopeSimple className="h-4 w-4" weight="bold" />
+                  {email.label}
+                </a>
+              ) : null}
+              {github ? (
+                <a
+                  href={github.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-[13px] text-muted transition-colors hover:text-accent"
+                  dir="ltr"
+                >
+                  <GithubLogo className="h-4 w-4" weight="fill" />
+                  {github.label}
+                </a>
+              ) : null}
+            </div>
+          </div>
         </Reveal>
 
-        {telegram ? (
-          <Reveal delay={0.04} className="mt-7 flex justify-center sm:mt-8">
-            <a
-              href={telegram.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex h-12 items-center gap-2.5 rounded-full border border-accent/35 bg-accent px-6 text-sm font-medium text-void transition-colors hover:bg-accent-bright active:scale-[0.98]"
-            >
-              <TelegramLogo className="h-5 w-5" weight="fill" />
-              گفتگو در تلگرام
-              <ArrowLeft
-                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-0.5"
-                weight="bold"
-              />
-            </a>
-          </Reveal>
-        ) : null}
-
-        <Reveal delay={0.06} className="mt-8 sm:mt-10 md:mt-12">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-1 shadow-[0_40px_100px_-60px_rgba(0,0,0,0.8)] sm:rounded-[1.75rem] sm:p-1.5">
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="rounded-[calc(1rem-2px)] border border-white/6 bg-void/70 p-4 sm:rounded-[calc(1.75rem-0.375rem)] sm:p-5 md:p-8"
-            >
-              <p className="mb-4 text-center text-[12px] text-dim sm:mb-5 sm:text-[13px]">
-                یا فرم کوتاه را پر کن؛ پیام مستقیم به پنل ادمین می‌رود
-              </p>
-
-              <input
-                type="text"
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden
-                className="sr-only"
-                {...register("website")}
-              />
-
-              <div className="mb-4 flex flex-wrap justify-center gap-1.5 sm:mb-5 sm:gap-2">
+        <Reveal delay={0.05}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="rounded-2xl border border-accent/15 bg-[#171717] p-5 shadow-[0_28px_70px_-36px_rgba(0,0,0,1),inset_0_1px_0_rgba(225,224,204,0.06)] sm:p-6 md:rounded-[1.35rem] md:p-7"
+          >
+            <div className="mb-6">
+              <p className="mb-2.5 text-[12px] text-dim">نوع پروژه</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {chips.map((chip) => (
                   <button
                     key={chip.value}
                     type="button"
                     onClick={() => setProjectType(chip.value)}
                     className={cn(
-                      "rounded-full px-3 py-1.5 text-[12px] transition-colors duration-300 sm:px-3.5 sm:text-[13px]",
+                      "rounded-full px-2.5 py-2 text-[12px] transition-colors duration-300 sm:text-[13px]",
                       projectType === chip.value
-                        ? "bg-accent text-void"
-                        : "border border-border text-muted hover:text-foreground",
+                        ? "bg-accent font-medium text-black"
+                        : "border border-accent/15 text-muted hover:border-accent/30 hover:text-foreground",
                     )}
                   >
                     {chip.label}
                   </button>
                 ))}
               </div>
+            </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Input
-                  label="نام"
-                  placeholder="نام شما"
-                  error={errors.name?.message}
-                  {...register("name")}
-                />
-                <Input
-                  label="تلگرام یا موبایل"
-                  placeholder="@username"
-                  dir="ltr"
-                  className="text-start"
-                  error={errors.contact?.message}
-                  {...register("contact")}
-                />
-              </div>
+            <input
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden
+              className="sr-only"
+              {...register("website")}
+            />
 
-              <div className="mt-4">
-                <Textarea
-                  label="پیام"
-                  placeholder="کوتاه بگو چه می‌خواهی بسازی"
-                  rows={4}
-                  error={errors.message?.message}
-                  {...register("message")}
-                />
-              </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                label="نام"
+                placeholder="نام شما"
+                error={errors.name?.message}
+                {...register("name")}
+              />
+              <Input
+                label="شماره موبایل"
+                placeholder="۰۹۱۲…"
+                dir="ltr"
+                className="text-start"
+                inputMode="tel"
+                error={errors.contact?.message}
+                {...register("contact")}
+              />
+            </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="group mt-6 inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-border-bright bg-transparent px-6 py-3.5 text-sm font-medium text-foreground transition-colors hover:border-accent/40 hover:text-accent disabled:opacity-60"
+            <div className="mt-4">
+              <Textarea
+                label="پیام"
+                placeholder="کوتاه بگو چه می‌خواهی بسازی"
+                rows={4}
+                error={errors.message?.message}
+                {...register("message")}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-accent/30 bg-transparent text-sm font-medium text-accent transition-colors hover:border-accent/50 hover:bg-accent/10 disabled:opacity-60"
+            >
+              {isSubmitting ? "در حال ارسال..." : "ارسال پیام"}
+              <ArrowLeft className="h-4 w-4" weight="bold" />
+            </button>
+
+            {status === "ok" ? (
+              <p
+                className="mt-4 text-center text-sm text-accent"
+                role="status"
               >
-                {isSubmitting ? "در حال ارسال..." : "ارسال پیام"}
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 transition-transform duration-300 group-hover:-translate-x-0.5">
-                  <ArrowLeft className="h-3.5 w-3.5" weight="bold" />
-                </span>
-              </button>
+                پیام ثبت شد
+              </p>
+            ) : null}
 
-              {status === "ok" ? (
-                <div
-                  className="mt-5 rounded-xl border border-accent/25 bg-accent/10 px-4 py-3 text-center"
-                  role="status"
-                >
-                  <p className="text-sm text-foreground">پیام ثبت شد.</p>
-                  <p className="mt-1 text-[13px] text-muted">
-                    معمولاً همان روز جواب می‌دهیم.
-                  </p>
-                  {telegram ? (
-                    <a
-                      href={telegram.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent-bright hover:underline"
-                    >
-                      <TelegramLogo className="h-4 w-4" weight="fill" />
-                      گفتگوی سریع در تلگرام
-                    </a>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {status === "error" ? (
-                <p className="mt-4 text-center text-sm text-signal" role="alert">
-                  ارسال نشد. از تلگرام پیام بده
-                  {email ? ` یا به ${email.label}` : ""}.
-                </p>
-              ) : null}
-            </form>
-          </div>
-        </Reveal>
-
-        <Reveal delay={0.1} className="mt-8 flex flex-wrap items-center justify-center gap-5 text-sm">
-          {github ? (
-            <a
-              href={github.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-muted transition-colors hover:text-accent"
-              dir="ltr"
-            >
-              <GithubLogo className="h-4 w-4" weight="fill" />
-              {github.label}
-            </a>
-          ) : null}
-          {email ? (
-            <a
-              href={email.href}
-              className="text-muted transition-colors hover:text-accent"
-              dir="ltr"
-            >
-              {email.label}
-            </a>
-          ) : null}
+            {status === "error" ? (
+              <p className="mt-4 text-center text-sm text-signal" role="alert">
+                ارسال نشد. از تلگرام پیام بده
+                {email ? ` یا ایمیل بزن.` : "."}
+              </p>
+            ) : null}
+          </form>
         </Reveal>
       </div>
     </section>

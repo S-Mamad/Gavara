@@ -24,7 +24,7 @@ export function Work() {
   return (
     <section
       id="work"
-      className="relative overflow-hidden border-b border-border py-20 sm:py-28 md:py-36"
+      className="relative overflow-hidden bg-void py-20 sm:py-28 md:py-36"
     >
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 md:px-10">
         <Reveal className="mb-10 max-w-2xl sm:mb-12 md:mb-16">
@@ -81,12 +81,8 @@ function CaseStudy({
     target: ref,
     offset: ["start end", "end start"],
   });
-  const imageScale = useTransform(scrollYProgress, [0, 0.45, 1], [0.94, 1, 1.02]);
-  const imageOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.85, 1],
-    [0.55, 1, 1, 0.7],
-  );
+  // Oversized inner layer + subtle Y only — never scale the clip box (that left gaps).
+  const imageY = useTransform(scrollYProgress, [0, 1], [18, -18]);
 
   const linkProps = !isStatic
     ? {
@@ -112,16 +108,18 @@ function CaseStudy({
           isLuxury ? "bg-[#1a0f05]" : "bg-[#0a0a0e]",
         )}
       >
-        <motion.div
-          className="absolute inset-0 overflow-hidden"
-          style={
-            reduceMotion
-              ? undefined
-              : { scale: imageScale, opacity: imageOpacity }
-          }
-        >
-          <ProjectCover project={project} />
-        </motion.div>
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute inset-0 will-change-transform"
+            style={
+              reduceMotion
+                ? undefined
+                : { y: imageY, scale: 1.08 }
+            }
+          >
+            <ProjectCover project={project} />
+          </motion.div>
+        </div>
         {linkProps ? (
           <Link
             {...linkProps}
@@ -131,7 +129,7 @@ function CaseStudy({
         ) : null}
       </div>
 
-      <div className="relative flex flex-col rounded-[calc(1rem-2px)] bg-elevated/40 p-5 sm:rounded-[calc(1.75rem-0.375rem)] sm:p-6 md:p-9">
+      <div className="relative flex flex-col justify-between gap-6 rounded-[calc(1rem-2px)] bg-elevated/40 p-5 sm:rounded-[calc(1.75rem-0.375rem)] sm:p-6 md:gap-8 md:p-9">
         {linkProps ? (
           <Link
             {...linkProps}
@@ -140,44 +138,46 @@ function CaseStudy({
             tabIndex={-1}
           />
         ) : null}
-        <div className="relative z-[2] flex flex-wrap items-center gap-2">
-          <span
-            className={cn(
-              "label-mono text-[11px]",
-              isLuxury ? "text-gold" : isInfra ? "text-accent" : "text-dim",
-            )}
-          >
-            {project.tag}
-          </span>
-          {project.year ? (
-            <span className="label-mono text-[11px] text-dim">
-              · {project.year}
+        <div className="relative z-[2]">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={cn(
+                "label-mono text-[11px]",
+                isLuxury ? "text-gold" : isInfra ? "text-accent" : "text-dim",
+              )}
+            >
+              {project.tag}
             </span>
+            {project.year ? (
+              <span className="label-mono text-[11px] text-dim">
+                · {project.year}
+              </span>
+            ) : null}
+          </div>
+
+          <h3 className="mt-3 font-display text-[1.35rem] leading-snug text-foreground sm:text-2xl md:text-3xl">
+            {project.title}
+          </h3>
+          <p className="mt-3 text-[13.5px] leading-[1.85] text-muted sm:text-sm md:text-[15px]">
+            {project.description}
+          </p>
+
+          {project.businessValue?.length ? (
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {project.businessValue.map((label) => (
+                <li
+                  key={label}
+                  className="rounded-full border border-border px-3 py-1 text-xs text-muted"
+                >
+                  {label}
+                </li>
+              ))}
+            </ul>
           ) : null}
         </div>
 
-        <h3 className="relative z-[2] mt-3 font-display text-[1.35rem] leading-snug text-foreground sm:text-2xl md:text-3xl">
-          {project.title}
-        </h3>
-        <p className="relative z-[2] mt-3 text-[13.5px] leading-[1.85] text-muted sm:text-sm md:text-[15px]">
-          {project.description}
-        </p>
-
-        {project.businessValue?.length ? (
-          <ul className="relative z-[2] mt-5 flex flex-wrap gap-2">
-            {project.businessValue.map((label) => (
-              <li
-                key={label}
-                className="rounded-full border border-border px-3 py-1 text-xs text-muted"
-              >
-                {label}
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
         {!isStatic ? (
-          <span className="relative z-[2] mt-auto flex items-center gap-2 self-start pt-8 text-sm text-muted transition-colors duration-300 group-hover:text-accent">
+          <span className="relative z-[2] flex items-center gap-2 self-start text-sm text-muted transition-colors duration-300 group-hover:text-accent">
             مشاهده
             <ArrowLeft
               className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5"

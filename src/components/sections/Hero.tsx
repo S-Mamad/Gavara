@@ -1,116 +1,76 @@
 "use client";
 
-import { ArrowLeft } from "@phosphor-icons/react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
-import { useMemo, useRef } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "@phosphor-icons/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useCopy } from "@/hooks/useCopy";
 import { usePrefs } from "@/context/PrefsContext";
-import { useSite } from "@/context/CmsContext";
-import {
-  TypewriterLine,
-  phrasesFromDescription,
-} from "@/components/ui/TypewriterLine";
-import { HeroCodeStage } from "@/components/sections/HeroCodeStage";
 
-const ease = [0.32, 0.72, 0, 1] as const;
+const HERO_VIDEO =
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4";
 
-const ctaBase =
-  "inline-flex h-11 w-full items-center justify-center gap-2 rounded-full px-5 text-[13px] font-medium transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-void active:scale-[0.98] sm:h-12 sm:w-auto sm:gap-2.5 sm:px-6 sm:text-sm";
+const ease = [0.16, 1, 0.3, 1] as const;
 
 export function Hero() {
   const copy = useCopy();
-  const site = useSite();
   const { forceReducedMotion } = usePrefs();
   const reduceMotion = useReducedMotion() || forceReducedMotion;
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0.55]);
-  const brand = `${site.brand.name}${site.brand.suffix}`;
-  const phrases = useMemo(
-    () => phrasesFromDescription(copy.hero.description),
-    [copy.hero.description],
-  );
 
   return (
     <section
-      ref={sectionRef}
       id="home"
-      className="relative z-[1] flex min-h-[100dvh] items-center overflow-hidden"
+      className="relative z-[1] min-h-[100dvh] p-3 pt-20 sm:p-4 sm:pt-24 md:p-6 md:pt-28"
     >
-      <motion.div
-        style={reduceMotion ? undefined : { opacity: contentOpacity }}
-        className="relative z-[var(--z-content)] mx-auto grid w-full max-w-7xl items-center gap-8 px-4 pb-14 pt-24 sm:gap-10 sm:px-6 sm:pb-16 sm:pt-28 md:grid-cols-2 md:gap-10 md:px-10 md:pb-20 lg:gap-14"
-      >
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease }}
-          className="mx-auto w-full max-w-xl text-center md:mx-0 md:text-start"
-        >
-          <h1 className="font-display text-[clamp(2.15rem,9vw,4.75rem)] leading-[1.08] tracking-tight text-foreground">
-            {brand}
-          </h1>
+      <div className="relative flex min-h-[calc(100dvh-6rem)] overflow-hidden rounded-2xl md:min-h-[calc(100dvh-7.5rem)] md:rounded-[2rem]">
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src={HERO_VIDEO}
+          autoPlay={!reduceMotion}
+          loop
+          muted
+          playsInline
+          poster="/og/raxinshop.webp"
+        />
 
-          {site.brand.tagline ? (
-            <p className="mt-2 text-[12px] text-dim sm:text-[13px]">
-              {site.brand.tagline}
-            </p>
-          ) : null}
+        <div className="noise-overlay pointer-events-none absolute inset-0 opacity-50 mix-blend-overlay" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/75" />
 
-          <p className="mt-4 font-display text-[clamp(1.05rem,3.8vw,1.65rem)] leading-[1.3] text-accent-bright sm:mt-5">
-            {copy.hero.title} {copy.hero.highlight}
-          </p>
-
-          <TypewriterLine
-            phrases={phrases}
-            className="mx-auto mt-4 max-w-[28ch] sm:mt-5 sm:max-w-[34ch] md:mx-0"
-          />
-
-          <div className="mt-8 flex flex-col gap-2.5 sm:mt-9 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3 md:justify-start">
-            <Link
-              href="#contact"
-              className={`${ctaBase} group border border-accent/35 bg-accent text-void hover:bg-accent-bright`}
+        <div className="relative z-10 flex w-full flex-col justify-end px-5 pb-8 pt-10 sm:px-8 sm:pb-10 md:px-12 md:pb-14">
+          <div dir="ltr" className="flex w-full justify-end">
+            <motion.div
+              dir="rtl"
+              className="flex w-full max-w-md flex-col gap-5 md:w-[min(100%,26rem)]"
+              initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.12, duration: 0.65, ease }}
             >
-              {copy.hero.primaryCta}
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-void/10 transition-transform duration-300 group-hover:-translate-x-0.5">
-                <ArrowLeft className="h-3.5 w-3.5" weight="bold" />
-              </span>
-            </Link>
-            <Link
-              href="/#work"
-              className={`${ctaBase} border border-border-bright text-foreground hover:border-accent/40 hover:text-accent`}
-            >
-              {copy.hero.secondaryCta}
-            </Link>
+              {copy.hero.description ? (
+                <p className="text-[14px] leading-[1.85] text-accent/70 sm:text-[15px] md:text-base">
+                  {copy.hero.description}
+                </p>
+              ) : null}
+
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  href="#contact"
+                  className="group inline-flex items-center gap-2 rounded-full bg-accent py-1.5 pe-1.5 ps-5 text-sm font-medium text-black transition-[gap] duration-300 hover:gap-3 sm:text-[15px]"
+                >
+                  {copy.hero.primaryCta}
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black transition-transform duration-300 group-hover:scale-105 sm:h-10 sm:w-10">
+                    <ArrowLeft className="h-4 w-4 text-accent" weight="bold" />
+                  </span>
+                </Link>
+                <Link
+                  href="/#work"
+                  className="rounded-full border border-accent/25 px-4 py-2.5 text-sm text-accent/80 transition-colors hover:border-accent/45 hover:text-accent"
+                >
+                  {copy.hero.secondaryCta}
+                </Link>
+              </div>
+            </motion.div>
           </div>
-
-          {site.heroStats?.length ? (
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 md:justify-start">
-              {site.heroStats.map((stat) => (
-                <div key={stat.label}>
-                  <p className="font-display text-xl text-foreground sm:text-2xl">
-                    {stat.value}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-dim">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </motion.div>
-
-        <div className="relative w-full min-w-0">
-          <HeroCodeStage />
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

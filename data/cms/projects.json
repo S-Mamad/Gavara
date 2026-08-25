@@ -16,6 +16,7 @@
       "Infra"
     ],
     "previewUrl": "https://marham.paziresh24.com",
+    "preferLivePreview": false,
     "image": "/portfolio/marham-showcase.webp",
     "metrics": [
       "Zero-downtime IP shift",
@@ -47,6 +48,7 @@
       "Motion"
     ],
     "previewUrl": "https://hajiasal.ir",
+    "preferLivePreview": false,
     "image": "/portfolio/hero-showcase.webp",
     "metrics": [
       "60fps scroll target",

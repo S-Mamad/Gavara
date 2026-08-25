@@ -149,12 +149,22 @@ export function ProjectsTab({
         {project && editingIndex >= 0 ? (
           <div className="grid gap-3">
             <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0e]">
-              {project.image ? (
+              {project.preferLivePreview === true && project.previewUrl ? (
+                <iframe
+                  title={`پیش‌نمایش زنده ${project.title}`}
+                  src={project.previewUrl}
+                  className="absolute inset-0 h-[250%] w-[250%] origin-top-left scale-[0.4] border-0 bg-white"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              ) : project.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={project.image}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover object-top"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  style={{
+                    objectPosition: project.imagePosition ?? "50% 0%",
+                  }}
                 />
               ) : (
                 <div
@@ -164,31 +174,41 @@ export function ProjectsTab({
                   }}
                 >
                   <p className="relative z-[1] text-[11px] text-foreground/70">
-                    هنوز کاور آپلود نشده. بدون تصویر، کارت نمونه‌کار خالی
-                    می‌ماند.
+                    آدرس سایت زنده یا کاور را تنظیم کن تا پیش‌نمایش اینجا بیاید.
                   </p>
                 </div>
               )}
-              <div
-                className="pointer-events-none absolute inset-x-0 top-0 z-[2] flex h-9 items-center gap-2 border-b border-white/10 bg-[#0c0c10]/92 px-3 backdrop-blur-md"
-                aria-hidden
-              >
-                <span className="h-2 w-2 shrink-0 rounded-full bg-signal/75" />
-                <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500/55" />
-                <span className="h-2 w-2 shrink-0 rounded-full bg-accent/55" />
+              {previewHost(project.previewUrl || project.href) ? (
                 <span
                   dir="ltr"
-                  className="ms-auto max-w-[65%] truncate rounded-md border border-white/8 bg-black/35 px-2 py-0.5 font-mono text-[9px] text-dim"
+                  className="pointer-events-none absolute bottom-2 start-2 z-[2] max-w-[80%] truncate rounded-md border border-white/10 bg-black/55 px-2 py-0.5 font-mono text-[9px] text-foreground/80"
                 >
-                  {previewHost(project.previewUrl || project.href) || "preview"}
+                  {previewHost(project.previewUrl || project.href)}
                 </span>
-              </div>
+              ) : null}
             </div>
+
+            <AdminCheckbox
+              label="پیش‌نمایش زنده سایت (iframe)"
+              checked={project.preferLivePreview === true && !!project.previewUrl}
+              onChange={(checked) =>
+                updateProject(editingIndex, {
+                  preferLivePreview: checked,
+                  ...(checked && !project.previewUrl && project.href.startsWith("http")
+                    ? { previewUrl: project.href }
+                    : {}),
+                })
+              }
+            />
 
             <AdminImageUpload
               value={project.image}
-              label="تصویر کاور (نمایش در سایت)"
-              hint="این تصویر روی کارت نمونه‌کار نشان داده می‌شود. بعد از آپلود حتماً ذخیره را بزن."
+              label="تصویر کاور (فالبک و حالت بدون زنده)"
+              hint="اگر سایت iframe را بلاک کند، همین کاور نشان داده می‌شود. نقطهٔ فوکوس را بکش."
+              objectPosition={project.imagePosition ?? "50% 0%"}
+              onObjectPositionChange={(position) =>
+                updateProject(editingIndex, { imagePosition: position })
+              }
               onUpload={onUpload}
               onChange={(url) =>
                 updateProject(editingIndex, { image: url })
@@ -279,7 +299,7 @@ export function ProjectsTab({
               </AdminField>
               <AdminField
                 label="آدرس سایت زنده"
-                hint="برای لینک «مشاهده» و نوار مرورگر روی کارت. iframe استفاده نمی‌شود"
+                hint="برای iframe پیش‌نمایش روی کارت نمونه‌کار"
               >
                 <input
                   className={adminInputClass}
@@ -289,6 +309,12 @@ export function ProjectsTab({
                   onChange={(e) =>
                     updateProject(editingIndex, {
                       previewUrl: e.target.value || undefined,
+                      ...(e.target.value
+                        ? {
+                            preferLivePreview:
+                              project.preferLivePreview ?? false,
+                          }
+                        : {}),
                     })
                   }
                 />

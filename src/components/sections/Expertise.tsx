@@ -1,45 +1,102 @@
 "use client";
 
-import type { ServiceItem } from "@/types";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { ArrowLeft, Check } from "@phosphor-icons/react";
+import { motion, useInView, useReducedMotion } from "motion/react";
+import { useRef } from "react";
 import { Reveal } from "@/components/ui/Reveal";
-import { ServiceIcon } from "@/components/ui/ServiceIcon";
 import { useCopy } from "@/hooks/useCopy";
+import { usePrefs } from "@/context/PrefsContext";
 import { useSite } from "@/context/CmsContext";
+import type { ServiceItem } from "@/types";
 
-function ServiceRow({
+const ease = [0.22, 1, 0.36, 1] as const;
+
+const SERVICE_BULLETS: Record<string, string[]> = {
+  architecture: [
+    "لایه‌بندی تمیز و قابل توسعه",
+    "مرز ماژول مشخص",
+    "جریان داده پایدار",
+  ],
+  infra: ["دپلوی بدون قطعی", "مهاجرت امن سرور", "مانیتورینگ زنده"],
+  frontend: [
+    "UI سریع و موبایل‌محور",
+    "ظاهر لوکس بدون سنگینی",
+    "تعامل و موشن هدفمند",
+  ],
+  repo: ["ساختار Git تمیز", "CI آماده تحویل", "کد قابل ادامه برای تیم"],
+};
+
+function FeatureCard({
+  children,
+  index,
+}: {
+  children: React.ReactNode;
+  index: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const { forceReducedMotion } = usePrefs();
+  const reduceMotion = useReducedMotion() || forceReducedMotion;
+
+  return (
+    <motion.div
+      ref={ref}
+      className="relative flex h-full min-h-0 w-[min(85vw,320px)] shrink-0 flex-col overflow-hidden rounded-2xl bg-panel p-4 sm:min-h-[280px] sm:w-auto sm:shrink sm:p-5 md:rounded-[1.5rem] md:p-6"
+      initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+      animate={
+        isInView || reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }
+      }
+      transition={{ delay: index * 0.08, duration: 0.5, ease }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function ServiceCard({
   service,
   index,
 }: {
   service: ServiceItem;
   index: number;
 }) {
+  const bullets = SERVICE_BULLETS[service.id] ?? [service.description];
+  const number = String(index).padStart(2, "0");
+
   return (
-    <Reveal delay={index * 0.05}>
-      <article
-        className={cn(
-          "group flex gap-4 border-b border-border/80 py-6 transition-colors duration-300 last:border-b-0 sm:gap-5 sm:py-7 md:gap-6 md:py-8",
-          index === 0 && "pt-0",
-        )}
-      >
-        <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-accent transition-colors duration-300 group-hover:border-accent/35 group-hover:bg-accent/10 sm:h-11 sm:w-11">
-          <ServiceIcon name={service.icon} />
+    <FeatureCard index={index}>
+      <div className="mb-4 flex items-baseline justify-between gap-3 sm:mb-6">
+        <h3 className="text-base font-semibold text-foreground sm:text-lg md:text-xl">
+          {service.title}
+        </h3>
+        <span className="text-[11px] text-dim sm:text-xs" dir="ltr">
+          {number}
         </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h3 className="font-display text-lg text-foreground sm:text-xl md:text-[1.35rem]">
-              {service.title}
-            </h3>
-            <span className="font-mono text-[10px] text-dim" dir="ltr">
-              0{index + 1}
+      </div>
+
+      <ul className="mb-auto flex flex-col gap-2 sm:gap-2.5">
+        {bullets.map((item) => (
+          <li key={item} className="flex items-start gap-2 sm:gap-2.5">
+            <Check
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent sm:h-4 sm:w-4"
+              weight="bold"
+            />
+            <span className="text-[12.5px] leading-relaxed text-muted sm:text-[13px] md:text-sm">
+              {item}
             </span>
-          </div>
-          <p className="mt-2 max-w-2xl text-[13.5px] leading-[1.85] text-muted sm:text-sm md:text-[15px]">
-            {service.description}
-          </p>
-        </div>
-      </article>
-    </Reveal>
+          </li>
+        ))}
+      </ul>
+
+      <Link
+        href="/#contact"
+        className="mt-5 inline-flex items-center gap-2 text-[13px] text-accent transition-opacity hover:opacity-80 sm:mt-6 sm:text-sm"
+      >
+        شروع گفتگو
+        <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" weight="bold" />
+      </Link>
+    </FeatureCard>
   );
 }
 
@@ -50,26 +107,30 @@ export function Expertise() {
   return (
     <section
       id="expertise"
-      className="relative overflow-hidden border-b border-border py-20 sm:py-28 md:py-36"
+      className="relative overflow-hidden bg-void px-4 py-16 sm:px-6 sm:py-20 md:px-8 md:py-24"
     >
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:gap-12 sm:px-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-16 md:px-10">
-        <Reveal className="md:sticky md:top-28 md:self-start">
+      <div className="bg-noise pointer-events-none absolute inset-0 opacity-[0.1]" />
+
+      <div className="relative z-10 mx-auto max-w-7xl">
+        <Reveal className="mx-auto mb-8 max-w-2xl text-center sm:mb-12 md:mb-14">
           {copy.bento.eyebrow ? (
-            <p className="mb-3 text-[12px] tracking-wide text-dim sm:text-[13px]">
+            <p className="mb-2 text-[12px] text-dim sm:mb-3 sm:text-[13px]">
               {copy.bento.eyebrow}
             </p>
           ) : null}
-          <h2 className="font-display text-[clamp(1.65rem,5vw,2.75rem)] leading-[1.15] text-foreground text-balance">
+          <h2 className="font-display text-[clamp(1.45rem,6vw,2.75rem)] leading-[1.25] text-foreground">
             {copy.bento.title}
           </h2>
-          <p className="mt-4 max-w-md text-[14px] leading-[1.85] text-muted sm:mt-5 sm:text-[15px] md:text-base">
+          <p className="mx-auto mt-3 max-w-xl text-[13.5px] leading-[1.8] text-muted sm:mt-4 sm:text-[15px]">
             {copy.bento.description}
           </p>
         </Reveal>
 
-        <div>
-          {data.services.map((service, index) => (
-            <ServiceRow key={service.id} service={service} index={index} />
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [-ms-overflow-style:none] sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+          {data.services.map((service, i) => (
+            <div key={service.id} className="snap-center sm:snap-align-none sm:contents">
+              <ServiceCard service={service} index={i + 1} />
+            </div>
           ))}
         </div>
       </div>

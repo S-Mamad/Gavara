@@ -42,6 +42,9 @@
     "Asal",
     ".agents",
     ".cursor",
-    ".next/dev"
+    ".next/dev",
+    "prisma",
+    "_host_pack",
+    "_remote_backup"
   ]
 }

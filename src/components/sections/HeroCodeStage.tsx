@@ -12,7 +12,7 @@ type Product = {
 }
 
 const studio: Product = {
-  name: 'RaxinShop',
+  name: 'Raxin',
   stack: ['Next.js', 'TypeScript', 'Infra'],
   status: 'live',
 }
