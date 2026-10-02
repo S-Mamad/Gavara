@@ -82,9 +82,6 @@ function prepareSiteForSave(site: SiteConfig, baselineJson: string): SiteConfig 
   if (teamLinksChanged && !linksChanged) {
     return syncTeamToSiteLinks(site);
   }
-  if (linksChanged && teamLinksChanged) {
-    return syncSiteLinksToTeam(site);
-  }
   return site;
 }
 

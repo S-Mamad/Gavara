@@ -28,7 +28,7 @@ export function Button({
   disabled,
 }: ButtonProps) {
   const styles = cn(
-    "group motion-safe:inline-flex items-center justify-center gap-2.5 font-medium transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-safe:active:scale-[0.98]",
+    "group inline-flex items-center justify-center gap-2.5 font-medium transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-safe:active:scale-[0.98]",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-void",
     variant === "primary" &&
       "border border-accent/40 bg-accent text-void hover:bg-accent-bright",

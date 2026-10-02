@@ -1,6 +1,14 @@
 import type { FaqItem, SiteConfig, TeamMember } from "@/types";
+import { publicHref } from "@/lib/links";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+function fallbackSiteUrl() {
+  if (process.env.NODE_ENV === "production") return "https://raxinshop.com";
+  return "http://localhost:3000";
+}
+
+const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL || fallbackSiteUrl()
+).replace(/\/$/, "");
 
 export function getSiteUrl() {
   return siteUrl;
@@ -19,7 +27,8 @@ export function buildOrganizationJsonLd(site: SiteConfig) {
     email: email?.label,
     sameAs: site.links
       .filter((l) => l.id !== "email")
-      .map((l) => l.href),
+      .map((l) => publicHref(l.href))
+      .filter((href): href is string => Boolean(href)),
   };
 }
 
@@ -52,11 +61,9 @@ export function buildPersonJsonLd(member: TeamMember) {
   if (member.links?.telegram) {
     jsonLd.sameAs = [member.links.telegram];
   }
-  if (member.links?.github) {
-    jsonLd.sameAs = [
-      ...((jsonLd.sameAs as string[]) ?? []),
-      member.links.github,
-    ];
+  const github = publicHref(member.links?.github);
+  if (github) {
+    jsonLd.sameAs = [...((jsonLd.sameAs as string[]) ?? []), github];
   }
   if (member.links?.linkedin) {
     jsonLd.sameAs = [

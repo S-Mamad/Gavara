@@ -2,19 +2,12 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
-import { useRef } from "react";
 import type { ProjectItem } from "@/types";
 import { useCopy } from "@/hooks/useCopy";
 import { useProjects } from "@/context/CmsContext";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProjectCover } from "@/components/ui/ProjectCover";
-import { cn } from "@/lib/utils";
+import { cn, previewHost } from "@/lib/utils";
 
 export function Work() {
   const copy = useCopy();
@@ -75,14 +68,7 @@ function CaseStudy({
   const isInfra = project.caseStyle === "infra";
   const isExternal = project.href.startsWith("http");
   const isStatic = project.comingSoon || project.href.startsWith("#");
-  const reduceMotion = useReducedMotion();
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  // Oversized inner layer + subtle Y only — never scale the clip box (that left gaps).
-  const imageY = useTransform(scrollYProgress, [0, 1], [18, -18]);
+  const host = previewHost(project.previewUrl || project.href);
 
   const linkProps = !isStatic
     ? {
@@ -95,7 +81,6 @@ function CaseStudy({
 
   return (
     <article
-      ref={ref}
       className={cn(
         "group grid overflow-hidden rounded-2xl border border-border/80 bg-surface/25 p-1 transition-colors duration-500 hover:border-border-bright sm:rounded-[1.75rem] sm:p-1.5 lg:grid-cols-2",
         isLuxury && "border-gold/25 hover:border-gold/45",
@@ -104,22 +89,11 @@ function CaseStudy({
     >
       <div
         className={cn(
-          "relative aspect-[16/10] overflow-hidden rounded-[calc(1rem-2px)] sm:rounded-[calc(1.75rem-0.375rem)] lg:min-h-[280px] lg:aspect-[16/10]",
+          "relative aspect-[3/2] overflow-hidden rounded-[calc(1rem-2px)] sm:rounded-[calc(1.75rem-0.375rem)]",
           isLuxury ? "bg-[#1a0f05]" : "bg-[#0a0a0e]",
         )}
       >
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            className="absolute inset-0 will-change-transform"
-            style={
-              reduceMotion
-                ? undefined
-                : { y: imageY, scale: 1.08 }
-            }
-          >
-            <ProjectCover project={project} />
-          </motion.div>
-        </div>
+        <ProjectCover project={project} />
         {linkProps ? (
           <Link
             {...linkProps}
@@ -133,12 +107,12 @@ function CaseStudy({
         {linkProps ? (
           <Link
             {...linkProps}
-            className="absolute inset-0 z-[1] rounded-[inherit]"
+            className="absolute inset-0 z-[3] rounded-[inherit]"
             aria-hidden
             tabIndex={-1}
           />
         ) : null}
-        <div className="relative z-[2]">
+        <div className="pointer-events-none relative z-[2]">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={cn(
@@ -151,6 +125,11 @@ function CaseStudy({
             {project.year ? (
               <span className="label-mono text-[11px] text-dim">
                 · {project.year}
+              </span>
+            ) : null}
+            {host ? (
+              <span dir="ltr" className="label-mono text-[11px] text-dim">
+                · {host}
               </span>
             ) : null}
           </div>
@@ -177,7 +156,7 @@ function CaseStudy({
         </div>
 
         {!isStatic ? (
-          <span className="relative z-[2] flex items-center gap-2 self-start text-sm text-muted transition-colors duration-300 group-hover:text-accent">
+          <span className="pointer-events-none relative z-[2] flex items-center gap-2 self-start text-sm text-muted transition-colors duration-300 group-hover:text-accent">
             مشاهده
             <ArrowLeft
               className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5"

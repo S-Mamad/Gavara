@@ -5,7 +5,7 @@ test.describe("Raxin landing page", () => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", { name: "راکسین" }),
+      page.getByRole("heading", { name: "از ایده تا محصول زنده" }),
     ).toBeVisible({ timeout: 15_000 });
 
     await expect(page.getByRole("img", { name: "مرهم" })).toBeVisible();
@@ -30,7 +30,7 @@ test.describe("Raxin landing page", () => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", { name: "راکسین" }),
+      page.getByRole("heading", { name: "از ایده تا محصول زنده" }),
     ).toBeVisible();
 
     await page.getByRole("button", { name: "باز کردن منو" }).click();

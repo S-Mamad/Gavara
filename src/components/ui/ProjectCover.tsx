@@ -26,7 +26,7 @@ export function ProjectCover({
   const hasImage = Boolean(project.image) && !broken;
   const hasLive = Boolean(project.previewUrl);
   const preferLive = project.preferLivePreview === true && hasLive;
-  const objectPosition = project.imagePosition ?? "50% 0%";
+  const objectPosition = project.imagePosition ?? "center";
 
   if (preferLive && project.previewUrl) {
     return (
@@ -53,7 +53,7 @@ export function ProjectCover({
           src={project.image}
           alt={project.title}
           fill
-          className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform group-hover:scale-[1.03]"
+          className="object-cover"
           style={{ objectPosition }}
           sizes={sizes}
           onError={() => setBroken(true)}

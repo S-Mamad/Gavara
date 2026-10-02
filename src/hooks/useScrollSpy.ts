@@ -1,16 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export function useScrollSpy(sectionIds: string[], offset = 120) {
-  const [activeId, setActiveId] = useState(sectionIds[0] ?? "");
+  const key = sectionIds.join("\n");
+  const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
-    const elements = sectionIds
+    const ids = key ? key.split("\n") : [];
+    const elements = ids
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
-    if (!elements.length) return;
+    if (!elements.length) {
+      setActiveId("");
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -24,11 +30,11 @@ export function useScrollSpy(sectionIds: string[], offset = 120) {
         }
 
         const scrollY = window.scrollY + offset;
-        for (let i = sectionIds.length - 1; i >= 0; i -= 1) {
-          const id = sectionIds[i];
-          const element = document.getElementById(id);
+        for (let i = ids.length - 1; i >= 0; i -= 1) {
+          const id = ids[i];
+          const element = document.getElementById(id!);
           if (element && element.offsetTop <= scrollY) {
-            setActiveId(id);
+            setActiveId(id!);
             return;
           }
         }
@@ -40,9 +46,19 @@ export function useScrollSpy(sectionIds: string[], offset = 120) {
     );
 
     elements.forEach((element) => observer.observe(element));
-
     return () => observer.disconnect();
-  }, [sectionIds, offset]);
+  }, [key, offset]);
 
   return activeId;
+}
+
+/** Highlights the section in view. On the archive, خدمات lights up inside #services. */
+export function useActiveSection(sectionIds: string[]) {
+  const pathname = usePathname();
+  const homeSpy = useScrollSpy(pathname === "/" ? sectionIds : []);
+  const workSpy = useScrollSpy(pathname === "/work" ? ["services"] : []);
+  if (pathname === "/work") {
+    return workSpy === "services" ? "expertise" : "work";
+  }
+  return homeSpy;
 }

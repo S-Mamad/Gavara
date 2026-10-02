@@ -9,7 +9,10 @@ import { useSite } from "@/context/CmsContext";
 export function About() {
   const copy = useCopy();
   const data = useSite();
-  const member = data.team[0];
+  const member = data.team.find((item) => item.featured) ?? data.team[0];
+  const others = member
+    ? data.team.filter((item) => item.id !== member.id)
+    : [];
 
   if (!member) return null;
 
@@ -48,6 +51,24 @@ export function About() {
           <div className="mt-7 flex justify-center md:justify-start">
             <TeamLinks member={member} />
           </div>
+          {others.length ? (
+            <ul className="mx-auto mt-8 flex max-w-md flex-col gap-4 border-t border-border pt-6 text-start md:mx-0">
+              {others.map((person) => (
+                <li key={person.id}>
+                  <p className="text-sm text-foreground">{person.name}</p>
+                  {person.role ? (
+                    <p className="mt-1 text-[13px] text-accent">{person.role}</p>
+                  ) : null}
+                  {person.bio ? (
+                    <p className="mt-2 text-[13px] leading-7 text-muted">
+                      {person.bio}
+                    </p>
+                  ) : null}
+                  <TeamLinks member={person} />
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </Reveal>
       </div>
     </section>

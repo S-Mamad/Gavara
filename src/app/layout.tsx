@@ -81,6 +81,7 @@ export default function RootLayout({
     <html
       lang="fa"
       dir="rtl"
+      data-scroll-behavior="smooth"
       className={`${vazirmatn.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="relative min-h-full bg-void font-sans text-foreground">

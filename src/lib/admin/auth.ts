@@ -11,6 +11,11 @@ const WEAK_PASSWORDS = new Set([
   "changeme",
 ]);
 
+const WEAK_SECRETS = new Set([
+  "dev-secret-change-me",
+  "change-this-to-a-long-random-string-at-least-24",
+]);
+
 export type AdminEnvCheck =
   | { ok: true }
   | { ok: false; message: string; code: string };
@@ -32,7 +37,7 @@ export function assertAdminEnvConfigured(): AdminEnvCheck {
   if (
     !secret ||
     secret.length < 24 ||
-    secret === "dev-secret-change-me" ||
+    WEAK_SECRETS.has(secret) ||
     secret === pass
   ) {
     return {
@@ -154,6 +159,32 @@ export function checkLoginRateLimit(ip: string): boolean {
 
 /** Shared IP rate limiter for public endpoints (e.g. lead form). */
 const ipBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function looksLikeIp(value: string): boolean {
+  if (!value || value.length > 64) return false;
+  if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(value)) {
+    return value.split(".").every((part) => Number(part) <= 255);
+  }
+  return value.includes(":") && /^[0-9a-fA-F:]+$/.test(value);
+}
+
+/**
+ * Prefer proxy-set addresses. The leftmost X-Forwarded-For hop is
+ * client-controlled, so it is not used.
+ */
+export function clientIp(request: Request): string {
+  const real = request.headers.get("x-real-ip")?.trim() ?? "";
+  if (looksLikeIp(real)) return real;
+  const cf = request.headers.get("cf-connecting-ip")?.trim() ?? "";
+  if (looksLikeIp(cf)) return cf;
+  const hops = (request.headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const nearest = hops.at(-1) ?? "";
+  if (looksLikeIp(nearest)) return nearest;
+  return "unknown";
+}
 
 export function checkIpRateLimit(
   key: string,

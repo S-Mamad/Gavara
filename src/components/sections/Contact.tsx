@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
+  Broadcast,
   EnvelopeSimple,
   GithubLogo,
   TelegramLogo,
@@ -16,30 +18,69 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Reveal } from "@/components/ui/Reveal";
 import { useCopy } from "@/hooks/useCopy";
 import { useSite } from "@/context/CmsContext";
+import {
+  isIranMobile,
+  PROJECT_TYPES,
+  projectTypeLabel,
+  resolveProjectType,
+} from "@/lib/contact";
+import { publicHref } from "@/lib/links";
 
 const schema = z.object({
   name: z.string().min(2, "نام الزامی است"),
-  contact: z.string().min(3, "شماره موبایل الزامی است"),
-  message: z.string().min(10, "توضیح باید حداقل ۱۰ کاراکتر باشد"),
+  contact: z
+    .string()
+    .trim()
+    .min(1, "شماره موبایل الزامی است")
+    .refine((value) => isIranMobile(value), "شماره موبایل معتبر نیست"),
+  message: z.string().min(10, "پیام باید حداقل ۱۰ کاراکتر باشد"),
   website: z.string().max(0).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
-const chips = [
-  { value: "mvp", label: "محصول جدید" },
-  { value: "frontend", label: "فرانت‌اند" },
-  { value: "infra", label: "زیرساخت" },
-  { value: "shop", label: "فروشگاه" },
-];
+export function Contact({
+  initialService = null,
+}: {
+  initialService?: string | null;
+}) {
+  return (
+    <Suspense fallback={<ContactSection serviceQuery={initialService} />}>
+      <ContactFromUrl initialService={initialService} />
+    </Suspense>
+  );
+}
 
-export function Contact() {
+function ContactFromUrl({
+  initialService,
+}: {
+  initialService: string | null;
+}) {
+  const fromUrl = useSearchParams().get("service");
+  return (
+    <ContactSection serviceQuery={fromUrl ?? initialService} />
+  );
+}
+
+function ContactSection({ serviceQuery }: { serviceQuery: string | null }) {
   const copy = useCopy();
   const data = useSite();
   const telegram = data.links.find((l) => l.id === "telegram");
   const github = data.links.find((l) => l.id === "github");
+  const githubHref = publicHref(github?.href);
   const email = data.links.find((l) => l.id === "email");
-  const [projectType, setProjectType] = useState("mvp");
+  const channel = data.links.find((l) => l.id === "channel");
+  const fromQuery = resolveProjectType(serviceQuery);
+  const [picked, setPicked] = useState<string | null>(null);
+  const [seenQuery, setSeenQuery] = useState(serviceQuery);
+  if (serviceQuery !== seenQuery) {
+    setSeenQuery(serviceQuery);
+    setPicked(null);
+  }
+  const projectType = picked ?? fromQuery;
+  const knownType = PROJECT_TYPES.some(
+    (chip) => chip.value === projectType || chip.label === projectType,
+  );
   const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
 
   const {
@@ -49,11 +90,17 @@ export function Contact() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    mode: "onTouched",
+    reValidateMode: "onChange",
     defaultValues: { name: "", contact: "", message: "", website: "" },
   });
 
   async function onSubmit(form: FormData) {
-    if (form.website) return;
+    if (form.website) {
+      setStatus("ok");
+      reset();
+      return;
+    }
     setStatus("idle");
 
     try {
@@ -64,7 +111,7 @@ export function Contact() {
           name: form.name,
           contact: form.contact,
           message: form.message,
-          projectType,
+          projectType: projectTypeLabel(projectType),
         }),
       });
       if (!res.ok) {
@@ -126,16 +173,28 @@ export function Contact() {
                   {email.label}
                 </a>
               ) : null}
-              {github ? (
+              {githubHref ? (
                 <a
-                  href={github.href}
+                  href={githubHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-[13px] text-muted transition-colors hover:text-accent"
                   dir="ltr"
                 >
                   <GithubLogo className="h-4 w-4" weight="fill" />
-                  {github.label}
+                  {github?.label ?? "گیت‌هاب"}
+                </a>
+              ) : null}
+              {channel ? (
+                <a
+                  href={channel.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-[13px] text-muted transition-colors hover:text-accent"
+                  dir="ltr"
+                >
+                  <Broadcast className="h-4 w-4" weight="fill" />
+                  {channel.label}
                 </a>
               ) : null}
             </div>
@@ -150,22 +209,32 @@ export function Contact() {
             <div className="mb-6">
               <p className="mb-2.5 text-[12px] text-dim">نوع پروژه</p>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {chips.map((chip) => (
-                  <button
-                    key={chip.value}
-                    type="button"
-                    onClick={() => setProjectType(chip.value)}
-                    className={cn(
-                      "rounded-full px-2.5 py-2 text-[12px] transition-colors duration-300 sm:text-[13px]",
-                      projectType === chip.value
-                        ? "bg-accent font-medium text-black"
-                        : "border border-accent/15 text-muted hover:border-accent/30 hover:text-foreground",
-                    )}
-                  >
-                    {chip.label}
-                  </button>
-                ))}
+                {PROJECT_TYPES.map((chip) => {
+                  const selected =
+                    projectType === chip.value || projectType === chip.label;
+                  return (
+                    <button
+                      key={chip.value}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => setPicked(chip.value)}
+                      className={cn(
+                        "rounded-full px-2.5 py-2 text-[12px] transition-colors duration-300 sm:text-[13px]",
+                        selected
+                          ? "bg-accent font-medium text-black"
+                          : "border border-accent/15 text-muted hover:border-accent/30 hover:text-foreground",
+                      )}
+                    >
+                      {chip.label}
+                    </button>
+                  );
+                })}
               </div>
+              {!knownType ? (
+                <p className="mt-3 text-[13px] text-accent">
+                  موضوع: {projectType}
+                </p>
+              ) : null}
             </div>
 
             <input
@@ -185,11 +254,13 @@ export function Contact() {
                 {...register("name")}
               />
               <Input
+                id="lead-contact"
                 label="شماره موبایل"
                 placeholder="۰۹۱۲…"
                 dir="ltr"
                 className="text-start"
                 inputMode="tel"
+                autoComplete="tel"
                 error={errors.contact?.message}
                 {...register("contact")}
               />

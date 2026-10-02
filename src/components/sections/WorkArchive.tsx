@@ -2,17 +2,21 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react";
-import capabilities from "@/data/capabilities.json";
-import type { CapabilityItem } from "@/types";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProjectArchiveCard } from "@/components/sections/ProjectArchiveCard";
 import { CapabilityCard } from "@/components/sections/CapabilityCard";
-import { useProjects } from "@/context/CmsContext";
-
-const capabilityData = capabilities as CapabilityItem[];
+import { useProjects, useSite } from "@/context/CmsContext";
 
 export function WorkArchive() {
   const projectData = useProjects();
+  const site = useSite();
+  const services = site.services.map((service, index) => ({
+    id: service.id,
+    title: service.title,
+    description: service.description,
+    tag: String(index + 1).padStart(2, "0"),
+    icon: service.icon,
+  }));
   return (
     <div className="relative overflow-hidden pb-20 pt-28 sm:pb-28 sm:pt-32 md:pb-36 md:pt-36">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 md:px-10">
@@ -34,7 +38,7 @@ export function WorkArchive() {
         </Reveal>
 
         <Reveal className="mb-6 sm:mb-8">
-          <p className="label-mono text-[11px] text-dim">Selected work</p>
+          <p className="text-[11px] text-dim">نمونه‌کارهای منتخب</p>
           <h2 className="mt-2 font-display text-xl text-foreground sm:text-2xl">
             نمونه‌کارها
           </h2>
@@ -50,9 +54,12 @@ export function WorkArchive() {
           ))}
         </div>
 
-        <section className="mt-20 border-t border-white/10 pt-14 sm:mt-24 sm:pt-16 md:mt-28 md:pt-20">
+        <section
+          id="services"
+          className="mt-20 border-t border-white/10 pt-14 sm:mt-24 sm:pt-16 md:mt-28 md:pt-20"
+        >
           <Reveal className="mb-8 max-w-2xl sm:mb-10 md:mb-12">
-            <p className="label-mono text-[11px] text-dim">Services</p>
+            <p className="text-[11px] text-dim">خدمات</p>
             <h2 className="mt-3 font-display text-[clamp(1.75rem,4.5vw,2.75rem)] leading-[1.15] tracking-tight text-foreground">
               خدمات استودیو
             </h2>
@@ -63,7 +70,7 @@ export function WorkArchive() {
           </Reveal>
 
           <div className="grid sm:grid-cols-2 sm:gap-3 lg:grid-cols-4 lg:gap-4">
-            {capabilityData.map((item, index) => (
+            {services.map((item, index) => (
               <CapabilityCard key={item.id} item={item} index={index} />
             ))}
           </div>

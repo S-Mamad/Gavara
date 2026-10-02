@@ -48,28 +48,52 @@
   ],
   "services": [
     {
-      "id": "architecture",
-      "title": "معماری سیستم",
-      "description": "لایه‌ها، مرز ماژول و جریان داده طوری چیده می‌شود که بعداً نشکنید.",
-      "icon": "architecture"
+      "id": "web-design",
+      "title": "طراحی و ساخت سایت",
+      "description": "لندینگ، سایت شرکتی و محصول وب؛ سریع، موبایل‌محور و آماده لانچ.",
+      "icon": "layout"
+    },
+    {
+      "id": "telegram",
+      "title": "خدمات تلگرام",
+      "description": "ربات، مینی‌اپ و اتوماسیون کانال؛ از ایده تا اتصال به سیستم واقعی.",
+      "icon": "telegram"
+    },
+    {
+      "id": "poster",
+      "title": "طراحی پوستر و بنر",
+      "description": "پوستر، استوری و بنر کمپین با هویت یکدست برای شبکه‌ها و چاپ.",
+      "icon": "poster"
+    },
+    {
+      "id": "branding",
+      "title": "هویت بصری",
+      "description": "لوگو، پالت، تایپ و پکیج برند؛ خروجی آماده برای وب و محتوا.",
+      "icon": "brand"
+    },
+    {
+      "id": "ecommerce",
+      "title": "فروشگاه آنلاین",
+      "description": "کاتالوگ، سبد و پرداخت؛ تجربه خرید روان بدون پیچیدگی اضافه.",
+      "icon": "store"
+    },
+    {
+      "id": "dashboard",
+      "title": "داشبورد و پنل",
+      "description": "پنل ادمین و گزارش؛ داده پیچیده با رابط ساده و قابل استفاده.",
+      "icon": "chart"
+    },
+    {
+      "id": "uiux",
+      "title": "UI / UX محصول",
+      "description": "جریان کاربر تا رابط نهایی؛ تمرکز روی وضوح، سرعت و تبدیل.",
+      "icon": "pen"
     },
     {
       "id": "infra",
-      "title": "زیرساخت و مهاجرت",
-      "description": "دپلوی، جابه‌جایی سرور و مانیتورینگ بدون قطعی برای کاربر.",
+      "title": "زیرساخت و دپلوی",
+      "description": "سرور، CI/CD و مهاجرت؛ لانچ پایدار بدون قطعی برای کاربر.",
       "icon": "server"
-    },
-    {
-      "id": "frontend",
-      "title": "فرانت‌اند محصول",
-      "description": "UI سریع، خوانا و موبایل‌محور؛ حس لوکس بدون سنگینی.",
-      "icon": "design"
-    },
-    {
-      "id": "repo",
-      "title": "تحویل و ریپو",
-      "description": "ساختار GitHub، CI و کد تمیز که تیمتان بتواند ادامه دهد.",
-      "icon": "git"
     }
   ],
   "team": [
@@ -82,7 +106,6 @@
       "imagePosition": "50% 16%",
       "featured": true,
       "links": {
-        "github": "https://github.com",
         "telegram": "https://t.me/Mamad"
       },
       "initials": "م‌م"
@@ -93,11 +116,6 @@
       "id": "telegram",
       "label": "@Mamad",
       "href": "https://t.me/Mamad"
-    },
-    {
-      "id": "github",
-      "label": "MAMAD",
-      "href": "https://github.com"
     },
     {
       "id": "channel",

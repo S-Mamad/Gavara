@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 import type { NavItem } from "@/types";
 import type { HomeSectionId, LayoutConfig } from "@/lib/cms/types";
 import { useLayout, useSite } from "@/context/CmsContext";
@@ -29,11 +30,26 @@ export function filterNavByLayout(
   });
 }
 
+function hrefForNav(item: NavItem, pathname: string) {
+  if (pathname !== "/work") return item.href;
+  if (item.id === "home") return "/";
+  if (item.id === "work") return "/work";
+  if (item.id === "expertise") return "/work#services";
+  if (item.id === "about") return "/#about";
+  if (item.id === "contact") return "/#contact";
+  return item.href;
+}
+
 export function useVisibleNav() {
   const site = useSite();
   const layout = useLayout();
+  const pathname = usePathname();
   return useMemo(
-    () => filterNavByLayout(site.nav, layout),
-    [site.nav, layout],
+    () =>
+      filterNavByLayout(site.nav, layout).map((item) => ({
+        ...item,
+        href: hrefForNav(item, pathname),
+      })),
+    [site.nav, layout, pathname],
   );
 }

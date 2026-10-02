@@ -1,6 +1,10 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { Button } from "@/components/ui/Button";
+
+export const metadata: Metadata = {
+  title: "صفحه یافت نشد",
+};
 
 export default function NotFound() {
   return (
@@ -21,12 +25,6 @@ export default function NotFound() {
           ارتباط با ما
         </Button>
       </div>
-      <Link
-        href="/hajiasal"
-        className="mt-8 font-mono text-xs text-dim transition-colors hover:text-accent"
-      >
-        hajiasal →
-      </Link>
     </div>
   );
 }

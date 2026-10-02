@@ -66,7 +66,7 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
     bento: {
       eyebrow: "خدمات",
       title: "چه می‌سازیم",
-      description: "چهار حوزه اصلی؛ بدون وعده اضافه.",
+      description: "از طراحی سایت و هویت بصری تا محصول و زیرساخت.",
     },
     work: {
       eyebrow: "نمونه",
@@ -106,7 +106,7 @@ export const copyByMode: Record<AudienceMode, LandingCopy> = {
     bento: {
       eyebrow: "خدمات",
       title: "چه می‌سازیم",
-      description: "چهار حوزه اصلی؛ بدون وعده اضافه.",
+      description: "از طراحی سایت و هویت بصری تا محصول و زیرساخت.",
     },
     work: {
       eyebrow: "نمونه",

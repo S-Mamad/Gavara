@@ -3,6 +3,7 @@ import {
   ADMIN_COOKIE,
   assertAdminEnvConfigured,
   checkLoginRateLimit,
+  clientIp,
   createSessionToken,
   verifyPassword,
 } from "@/lib/admin/auth";
@@ -16,10 +17,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "local";
+  const ip = clientIp(request);
 
   if (!checkLoginRateLimit(ip)) {
     return NextResponse.json(

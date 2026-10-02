@@ -1,45 +1,21 @@
 import { NextResponse } from "next/server";
 
-const MOCK = {
-  source: "mock" as const,
-  profile: {
-    login: "raxinshop",
-    publicRepos: 24,
-    followers: 118,
-  },
-  events: [
+function unavailable() {
+  return NextResponse.json(
     {
-      type: "PushEvent",
-      repo: "raxinshop/landing",
-      createdAt: "2h ago",
+      source: "unavailable" as const,
+      profile: null,
+      events: [],
     },
-    {
-      type: "PullRequestEvent",
-      repo: "raxinshop/hajiasal",
-      createdAt: "1d ago",
-    },
-    {
-      type: "CreateEvent",
-      repo: "raxinshop/infra-notes",
-      createdAt: "3d ago",
-    },
-    {
-      type: "PushEvent",
-      repo: "raxinshop/marham-ui",
-      createdAt: "5d ago",
-    },
-  ],
-};
+    { headers: { "Cache-Control": "no-store" } },
+  );
+}
 
 export async function GET() {
   const token = process.env.GITHUB_TOKEN;
   const user = process.env.GITHUB_USERNAME ?? "raxinshop";
 
-  if (!token) {
-    return NextResponse.json(MOCK, {
-      headers: { "Cache-Control": "s-maxage=300, stale-while-revalidate=600" },
-    });
-  }
+  if (!token) return unavailable();
 
   try {
     const headers = {
@@ -89,6 +65,6 @@ export async function GET() {
       })),
     });
   } catch {
-    return NextResponse.json(MOCK);
+    return unavailable();
   }
 }

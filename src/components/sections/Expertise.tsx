@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Check } from "@phosphor-icons/react";
+import { ArrowLeft } from "@phosphor-icons/react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { useRef } from "react";
 import { Reveal } from "@/components/ui/Reveal";
@@ -11,21 +11,6 @@ import { useSite } from "@/context/CmsContext";
 import type { ServiceItem } from "@/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-const SERVICE_BULLETS: Record<string, string[]> = {
-  architecture: [
-    "لایه‌بندی تمیز و قابل توسعه",
-    "مرز ماژول مشخص",
-    "جریان داده پایدار",
-  ],
-  infra: ["دپلوی بدون قطعی", "مهاجرت امن سرور", "مانیتورینگ زنده"],
-  frontend: [
-    "UI سریع و موبایل‌محور",
-    "ظاهر لوکس بدون سنگینی",
-    "تعامل و موشن هدفمند",
-  ],
-  repo: ["ساختار Git تمیز", "CI آماده تحویل", "کد قابل ادامه برای تیم"],
-};
 
 function FeatureCard({
   children,
@@ -61,7 +46,6 @@ function ServiceCard({
   service: ServiceItem;
   index: number;
 }) {
-  const bullets = SERVICE_BULLETS[service.id] ?? [service.description];
   const number = String(index).padStart(2, "0");
 
   return (
@@ -75,22 +59,15 @@ function ServiceCard({
         </span>
       </div>
 
-      <ul className="mb-auto flex flex-col gap-2 sm:gap-2.5">
-        {bullets.map((item) => (
-          <li key={item} className="flex items-start gap-2 sm:gap-2.5">
-            <Check
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent sm:h-4 sm:w-4"
-              weight="bold"
-            />
-            <span className="text-[12.5px] leading-relaxed text-muted sm:text-[13px] md:text-sm">
-              {item}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {service.description ? (
+        <p className="mb-auto text-[13px] leading-relaxed text-muted sm:text-sm">
+          {service.description}
+        </p>
+      ) : null}
 
       <Link
-        href="/#contact"
+        href={`/?service=${encodeURIComponent(service.title)}#contact`}
+        aria-label={`شروع گفتگو درباره ${service.title}`}
         className="mt-5 inline-flex items-center gap-2 text-[13px] text-accent transition-opacity hover:opacity-80 sm:mt-6 sm:text-sm"
       >
         شروع گفتگو

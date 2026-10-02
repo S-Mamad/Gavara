@@ -20,6 +20,7 @@ import {
 } from "@/components/admin/ui";
 import { adminFetch, adminFetchJson, errorMessage } from "@/lib/admin/fetchJson";
 import { cn } from "@/lib/utils";
+import { projectTypeLabel } from "@/lib/contact";
 
 const FILTERS: Array<{ id: "all" | LeadStatus; label: string }> = [
   { id: "all", label: "همه" },
@@ -234,7 +235,7 @@ export default function AdminLeadsClient() {
           l.id,
           l.name,
           l.contact,
-          l.projectType ?? "",
+          projectTypeLabel(l.projectType),
           l.status,
           l.createdAt,
           l.message.replace(/\n/g, " "),
@@ -496,7 +497,7 @@ export default function AdminLeadsClient() {
             {active.projectType ? (
               <div>
                 <p className="text-[11px] text-dim">نوع</p>
-                <p className="text-muted">{active.projectType}</p>
+                <p className="text-muted">{projectTypeLabel(active.projectType)}</p>
               </div>
             ) : null}
             <div>

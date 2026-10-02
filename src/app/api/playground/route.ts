@@ -21,7 +21,7 @@ const PAYLOADS: Record<string, unknown> = {
     ok: true,
     data: {
       studio: "Raxinshop",
-      city: "Tehran",
+      city: "Yazd",
       contact: "Mohammadi@gmail.com",
       highlights: [
         "Production frontends at scale",

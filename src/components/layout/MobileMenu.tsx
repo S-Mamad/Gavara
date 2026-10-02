@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/utils";
-import { useScrollSpy } from "@/hooks/useScrollSpy";
+import { useActiveSection } from "@/hooks/useScrollSpy";
 import { useVisibleNav } from "@/hooks/useVisibleNav";
 import { useCopy } from "@/hooks/useCopy";
 
@@ -15,8 +15,9 @@ export function MobileMenu() {
   const sectionIds = nav.map((n) => n.id);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const activeId = useScrollSpy(sectionIds);
+  const activeId = useActiveSection(sectionIds);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
   useEffect(() => setMounted(true), []);
@@ -24,14 +25,44 @@ export function MobileMenu() {
   useEffect(() => {
     if (!open) return;
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const panel = panelRef.current;
+    const focusable = () =>
+      panel
+        ? [
+            ...panel.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled])',
+            ),
+          ]
+        : [];
+    focusable()[0]?.focus();
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpen(false);
         triggerRef.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusable();
+      if (!items.length) return;
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
@@ -79,6 +110,7 @@ export function MobileMenu() {
                   />
                   <motion.div
                     key="mobile-menu-panel"
+                    ref={panelRef}
                     id="mobile-menu-panel"
                     role="dialog"
                     aria-modal="true"

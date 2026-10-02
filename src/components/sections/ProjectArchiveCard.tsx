@@ -38,24 +38,12 @@ export function ProjectArchiveCard({
           isInfra && "hover:border-accent/30",
         )}
       >
-        <div className="relative aspect-[16/10] overflow-hidden bg-[#0a0a0e]">
+        <div className="relative aspect-[3/2] overflow-hidden bg-[#0a0a0e]">
           <ProjectCover
             project={project}
             sizes="(max-width: 768px) 100vw, 33vw"
           />
           {/* Soft edge only — no tag/year overlay competing with showcase chrome */}
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-16 bg-gradient-to-t from-black/50 to-transparent"
-            aria-hidden
-          />
-          {host ? (
-            <span
-              dir="ltr"
-              className="pointer-events-none absolute bottom-3 start-3 z-[2] max-w-[70%] truncate rounded-md border border-white/10 bg-black/50 px-2 py-0.5 font-mono text-[9px] text-foreground/75 backdrop-blur-sm"
-            >
-              {host}
-            </span>
-          ) : null}
         </div>
 
         <div className="relative flex flex-1 flex-col gap-3 p-5">
@@ -71,6 +59,11 @@ export function ProjectArchiveCard({
             {project.year ? (
               <span className="label-mono text-[10px] text-dim">
                 · {project.year}
+              </span>
+            ) : null}
+            {host ? (
+              <span dir="ltr" className="label-mono max-w-full truncate text-[10px] text-dim">
+                · {host}
               </span>
             ) : null}
           </div>

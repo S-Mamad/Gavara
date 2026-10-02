@@ -1,21 +1,24 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { appendLead, ensureCmsSeeded } from "@/lib/cms/store";
-import { checkIpRateLimit } from "@/lib/admin/auth";
+import { checkIpRateLimit, clientIp } from "@/lib/admin/auth";
+import { isIranMobile } from "@/lib/contact";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(120),
-  contact: z.string().trim().min(3).max(200),
+  contact: z
+    .string()
+    .trim()
+    .min(3)
+    .max(200)
+    .refine((value) => isIranMobile(value)),
   message: z.string().trim().min(10).max(4000),
   projectType: z.string().trim().max(120).optional(),
   website: z.string().max(0).optional(),
 });
 
 export async function POST(request: Request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "local";
+  const ip = clientIp(request);
 
   if (!checkIpRateLimit(`lead:${ip}`, 8, 15 * 60 * 1000)) {
     return NextResponse.json(

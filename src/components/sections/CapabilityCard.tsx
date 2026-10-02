@@ -44,7 +44,7 @@ export function CapabilityCard({
       className={cn("h-full", featured && "sm:col-span-1 lg:col-span-1")}
     >
       <Link
-        href="/#contact"
+        href={`/?service=${encodeURIComponent(item.title)}#contact`}
         className={cn(
           "group relative flex h-full flex-col border-b border-white/10 py-6 transition-colors duration-400 sm:border sm:border-white/10 sm:rounded-2xl sm:bg-white/[0.015] sm:px-5 sm:py-6 sm:hover:border-accent/35 sm:hover:bg-white/[0.03] md:px-6 md:py-7",
           featured && "lg:min-h-[220px]",

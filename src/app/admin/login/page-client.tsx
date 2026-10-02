@@ -28,16 +28,30 @@ export default function AdminLoginPage() {
   );
 
   useEffect(() => {
-    fetch("/api/admin/session")
+    const ctrl = new AbortController();
+    const timer = window.setTimeout(() => ctrl.abort(), 8000);
+    let alive = true;
+
+    fetch("/api/admin/session", { signal: ctrl.signal })
       .then((r) => r.json())
       .then((json) => {
+        if (!alive) return;
         if (json?.authenticated) {
           router.replace(nextPath);
           return;
         }
         setChecking(false);
       })
-      .catch(() => setChecking(false));
+      .catch(() => {
+        if (alive) setChecking(false);
+      })
+      .finally(() => window.clearTimeout(timer));
+
+    return () => {
+      alive = false;
+      ctrl.abort();
+      window.clearTimeout(timer);
+    };
   }, [router, nextPath]);
 
   async function onSubmit(e: FormEvent) {

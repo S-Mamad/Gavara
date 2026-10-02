@@ -19,7 +19,7 @@ const FALLBACK_COPY: EditableCopy = {
   bento: {
     eyebrow: "خدمات",
     title: "چه می‌سازیم",
-    description: "چهار حوزه اصلی؛ بدون وعده اضافه.",
+    description: "از طراحی سایت و هویت بصری تا محصول و زیرساخت.",
   },
   work: {
     eyebrow: "نمونه",
@@ -122,27 +122,8 @@ export async function setSite(data: SiteConfig): Promise<void> {
   await writeJsonFile("site", data);
 }
 
-function withProjectCovers(projects: ProjectItem[]): ProjectItem[] {
-  const seedById = new Map(
-    (fallbackProjects as ProjectItem[]).map((p) => [p.id, p]),
-  );
-  return projects.map((project) => {
-    const seed = seedById.get(project.id);
-    const image = project.image || seed?.image;
-    if (image === project.image) return project;
-    return {
-      ...project,
-      ...(image ? { image } : {}),
-    };
-  });
-}
-
 export async function getProjects(): Promise<ProjectItem[]> {
-  const projects = await readJsonFile(
-    "projects",
-    fallbackProjects as ProjectItem[],
-  );
-  return withProjectCovers(projects);
+  return readJsonFile("projects", fallbackProjects as ProjectItem[]);
 }
 
 export async function setProjects(data: ProjectItem[]): Promise<void> {
@@ -250,27 +231,6 @@ export async function ensureCmsSeeded(): Promise<void> {
         }
       }
 
-      // Backfill cover images for known projects that only had previewUrl.
-      try {
-        const seedById = new Map(
-          (fallbackProjects as ProjectItem[]).map((p) => [p.id, p]),
-        );
-        const current = await readJsonFile(
-          "projects",
-          fallbackProjects as ProjectItem[],
-        );
-        let changed = false;
-        const next = current.map((p) => {
-          const seedImage = seedById.get(p.id)?.image;
-          const image = p.image || seedImage;
-          if (image === p.image) return p;
-          changed = true;
-          return image ? { ...p, image } : p;
-        });
-        if (changed) await writeJsonFile("projects", next);
-      } catch {
-        /* ignore migration failures */
-      }
     })().catch((err) => {
       seedPromise = null;
       throw err;

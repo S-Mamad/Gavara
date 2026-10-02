@@ -34,7 +34,7 @@ export function LiveSitePreview({
   className,
   fallbackGradient,
   fallbackImage,
-  objectPosition = "50% 0%",
+  objectPosition = "center",
 }: LiveSitePreviewProps) {
   const shellRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);

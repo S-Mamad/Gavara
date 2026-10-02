@@ -7,8 +7,8 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
 
 interface GhPayload {
-  source: "live" | "mock";
-  profile: { login: string; publicRepos: number; followers: number };
+  source: "live" | "unavailable";
+  profile: { login: string; publicRepos: number; followers: number } | null;
   events: { type: string; repo: string; createdAt: string }[];
 }
 
@@ -64,7 +64,12 @@ export function GitHubActivity() {
                 {error}
               </p>
             ) : null}
-            {data ? (
+            {data?.source === "unavailable" ? (
+              <p className="text-sm text-muted">
+                فعالیت گیت‌هاب وصل نیست.
+              </p>
+            ) : null}
+            {data?.profile ? (
               <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr]">
                 <div>
                   <p className="label-mono text-accent">

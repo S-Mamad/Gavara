@@ -20,7 +20,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </label>
         <input
           ref={ref}
-          id={inputId}
           className={cn(
             "h-12 rounded-2xl border border-accent/12 bg-gradient-to-b from-white/[0.04] to-transparent px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(225,224,204,0.04)] outline-none transition-all duration-300",
             "placeholder:text-dim/55",
@@ -31,8 +30,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className,
           )}
           {...props}
+          id={inputId}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${inputId}-error` : undefined}
         />
-        {error ? <p className="text-xs text-signal">{error}</p> : null}
+        {error ? (
+          <p id={`${inputId}-error`} className="text-xs text-signal" role="alert">
+            {error}
+          </p>
+        ) : null}
       </div>
     );
   },

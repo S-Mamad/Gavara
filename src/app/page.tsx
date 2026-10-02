@@ -13,7 +13,15 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ service?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const raw = params.service;
+  const initialService =
+    (Array.isArray(raw) ? raw[0] : raw)?.trim() || null;
   await ensureCmsSeeded();
   const cms = await getPublicCms();
   const copy = mergeLandingCopy(cms.copy);
@@ -49,7 +57,7 @@ export default async function Home() {
       <ScrollProgress />
       <Header />
       <main id="main" className="w-full max-w-full overflow-x-hidden bg-void">
-        <HomeSections />
+        <HomeSections initialService={initialService} />
       </main>
       <Footer />
     </CmsProvider>

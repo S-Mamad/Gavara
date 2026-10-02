@@ -1,16 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, GithubLogo, TelegramLogo } from "@phosphor-icons/react";
+import { ArrowLeft, Broadcast, GithubLogo, TelegramLogo } from "@phosphor-icons/react";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useScrollSpy } from "@/hooks/useScrollSpy";
+import { useActiveSection } from "@/hooks/useScrollSpy";
 import { BrandLink } from "@/components/ui/BrandLogo";
 import { MobileMenu } from "./MobileMenu";
 import { useSite } from "@/context/CmsContext";
 import { useVisibleNav } from "@/hooks/useVisibleNav";
 import { useCopy } from "@/hooks/useCopy";
+import { publicHref } from "@/lib/links";
 
 export function Header() {
   const data = useSite();
@@ -18,9 +19,12 @@ export function Header() {
   const nav = useVisibleNav();
   const sectionIds = nav.map((n) => n.id);
   const telegram = data.links.find((l) => l.id === "telegram");
-  const github = data.links.find((l) => l.id === "github");
+  const githubHref = publicHref(
+    data.links.find((l) => l.id === "github")?.href,
+  );
+  const channel = data.links.find((l) => l.id === "channel");
   const [scrolled, setScrolled] = useState(false);
-  const activeId = useScrollSpy(sectionIds);
+  const activeId = useActiveSection(sectionIds);
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -59,9 +63,9 @@ export function Header() {
         </ul>
 
         <div className="ms-auto flex items-center gap-1.5 md:gap-2">
-          {github ? (
+          {githubHref ? (
             <a
-              href={github.href}
+              href={githubHref}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden h-9 w-9 items-center justify-center rounded-full border border-accent/15 text-muted transition-colors hover:border-accent/35 hover:text-accent sm:inline-flex"
@@ -79,6 +83,17 @@ export function Header() {
               aria-label="تلگرام"
             >
               <TelegramLogo className="h-4 w-4" weight="fill" />
+            </a>
+          ) : null}
+          {channel ? (
+            <a
+              href={channel.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden h-9 w-9 items-center justify-center rounded-full border border-accent/15 text-muted transition-colors hover:border-accent/35 hover:text-accent sm:inline-flex"
+              aria-label={channel.label}
+            >
+              <Broadcast className="h-4 w-4" weight="fill" />
             </a>
           ) : null}
           <Link

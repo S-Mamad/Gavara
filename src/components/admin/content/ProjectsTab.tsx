@@ -16,6 +16,7 @@ import {
   useAdminConfirm,
 } from "@/components/admin/ui";
 import { AdminImageUpload } from "@/components/admin/AdminImageUpload";
+import { LiveSitePreview } from "@/components/ui/LiveSitePreview";
 import { cn, previewHost } from "@/lib/utils";
 import { CASE_STYLES, PROJECT_CATEGORIES } from "./types";
 
@@ -129,7 +130,8 @@ export function ProjectsTab({
                 gradient: ["#0e0e14", "#1e1e24"],
                 category: "web",
                 tech: [],
-                featured: true,
+                featured: false,
+                comingSoon: true,
                 caseStyle: "default",
               };
               onChange([...projects, item]);
@@ -148,13 +150,14 @@ export function ProjectsTab({
       >
         {project && editingIndex >= 0 ? (
           <div className="grid gap-3">
-            <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0e]">
+            <div className="relative aspect-[3/2] overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0e]">
               {project.preferLivePreview === true && project.previewUrl ? (
-                <iframe
-                  title={`پیش‌نمایش زنده ${project.title}`}
+                <LiveSitePreview
                   src={project.previewUrl}
-                  className="absolute inset-0 h-[250%] w-[250%] origin-top-left scale-[0.4] border-0 bg-white"
-                  referrerPolicy="no-referrer-when-downgrade"
+                  title={project.title}
+                  fallbackImage={project.image}
+                  fallbackGradient={project.gradient}
+                  objectPosition={project.imagePosition ?? "center"}
                 />
               ) : project.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -163,7 +166,7 @@ export function ProjectsTab({
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover"
                   style={{
-                    objectPosition: project.imagePosition ?? "50% 0%",
+                    objectPosition: project.imagePosition ?? "center",
                   }}
                 />
               ) : (
@@ -205,7 +208,7 @@ export function ProjectsTab({
               value={project.image}
               label="تصویر کاور (فالبک و حالت بدون زنده)"
               hint="اگر سایت iframe را بلاک کند، همین کاور نشان داده می‌شود. نقطهٔ فوکوس را بکش."
-              objectPosition={project.imagePosition ?? "50% 0%"}
+              objectPosition={project.imagePosition ?? "center"}
               onObjectPositionChange={(position) =>
                 updateProject(editingIndex, { imagePosition: position })
               }

@@ -17,7 +17,11 @@ const SECTION_MAP: Record<HomeSectionId, ComponentType> = {
   contact: Contact,
 };
 
-export function HomeSections() {
+export function HomeSections({
+  initialService = null,
+}: {
+  initialService?: string | null;
+}) {
   const layout = useLayout();
 
   return (
@@ -25,6 +29,9 @@ export function HomeSections() {
       {layout.sections
         .filter((s) => s.enabled)
         .map((section) => {
+          if (section.id === "contact") {
+            return <Contact key="contact" initialService={initialService} />;
+          }
           const Comp = SECTION_MAP[section.id];
           if (!Comp) return null;
           return <Comp key={section.id} />;
